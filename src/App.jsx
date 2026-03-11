@@ -538,6 +538,21 @@ export default function App() {
           p { margin: 0 0 2px !important; }
           ul { margin: 2px 0 !important; }
           li { margin-bottom: 1px !important; }
+          /* Passer toutes les grilles en colonne simple à l'impression */
+          div[style*="grid-template-columns: 1fr 1fr"] {
+            display: block !important;
+          }
+          div[style*="grid-template-columns: 1fr 1fr"] > div {
+            width: 100% !important;
+            margin-bottom: 4px !important;
+          }
+          /* Garder les tableaux de tarifs côte à côte */
+          div[style*="gap: 10px"] {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+          }
+          table { break-inside: avoid !important; page-break-inside: avoid !important; }
+          p, li { orphans: 3; widows: 3; }
         }
         * { box-sizing: border-box; }
         input::placeholder { color: #bbb; }
