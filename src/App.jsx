@@ -413,7 +413,7 @@ export default function App() {
 
       {/* Toolbar contrat */}
       {show && (
-        <div style={{
+        <div id="no-print" style={{
           position: "sticky", top: 0, zIndex: 100, background: "#1a1008",
           padding: "10px 24px", display: "flex", justifyContent: "space-between", alignItems: "center",
           boxShadow: "0 2px 12px rgba(0,0,0,.35)",
@@ -532,10 +532,8 @@ export default function App() {
           * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           @page { margin: 8mm 10mm; size: A4; }
           body { background: white !important; margin: 0 !important; padding: 0 !important; }
-          /* Masquer TOUT sauf le contrat */
-          body > div > * { display: none !important; }
-          /* Réafficher uniquement le dernier enfant (le contrat) */
-          body > div > div:last-child { display: block !important; padding: 0 !important; }
+          #no-print { display: none !important; }
+          body > div > div:last-child { padding: 0 !important; }
           body > div > div:last-child > div { box-shadow: none !important; }
           p { margin: 0 0 2px !important; }
           ul { margin: 2px 0 !important; }
