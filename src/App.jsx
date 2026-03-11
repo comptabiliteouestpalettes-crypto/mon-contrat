@@ -529,12 +529,14 @@ export default function App() {
 
       <style>{`
         @media print {
-          body > div > div:first-child { display: none !important; }
-          body > div > div:nth-child(2) { display: none !important; }
-          body { background: white !important; margin: 0 !important; padding: 0 !important; }
-          body > div > div:last-child { display: block !important; padding: 0 !important; }
-          body > div > div:last-child > div { box-shadow: none !important; border-left: none !important; border-right: none !important; border-bottom: none !important; }
+          * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           @page { margin: 8mm 10mm; size: A4; }
+          body { background: white !important; margin: 0 !important; padding: 0 !important; }
+          /* Masquer TOUT sauf le contrat */
+          body > div > * { display: none !important; }
+          /* Réafficher uniquement le dernier enfant (le contrat) */
+          body > div > div:last-child { display: block !important; padding: 0 !important; }
+          body > div > div:last-child > div { box-shadow: none !important; }
           p { margin: 0 0 2px !important; }
           ul { margin: 2px 0 !important; }
           li { margin-bottom: 1px !important; }
