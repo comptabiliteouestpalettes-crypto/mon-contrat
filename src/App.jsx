@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const TARIFS_DEFAUT = [
   { libelle: "Palette 080x120 Europe", prix: "1,20", unite: "pièce" },
@@ -38,7 +38,8 @@ const EMPTY = {
   dateDebut: "", tribunal: "", dateSig: "",
 };
 
-// ── Shared input style ────────────────────────────────────
+const STORAGE_KEY = "contrats_sauvegardes";
+
 const inputBase = (focus) => ({
   width: "100%", padding: "9px 13px", borderRadius: "8px",
   border: `1.5px solid ${focus ? "#b8860b" : "#ddd0bb"}`,
@@ -117,7 +118,6 @@ function Section({ num, title, children }) {
   );
 }
 
-// ── Tarifs editor ────────────────────────────────────────
 function TarifsEditor({ tarifs, setTarifs }) {
   const update = (i, field, val) =>
     setTarifs(t => t.map((r, idx) => idx === i ? { ...r, [field]: val } : r));
@@ -196,14 +196,11 @@ function TarifsEditor({ tarifs, setTarifs }) {
   );
 }
 
-// ── Contract display ─────────────────────────────────────
-function Contract({ f, tarifs }) {
+function ContractView({ f, tarifs }) {
   const rep = `${f.prestCivilite} ${f.prestNomFamille}${f.prestPrenom ? " " + f.prestPrenom : ""}`.trim();
   const half = Math.ceil(tarifs.length / 2);
   const L = tarifs.slice(0, half), R = tarifs.slice(half);
 
-  // Beige palette for the contract
-  const BG = "#fdf8f0";
   const BG2 = "#f7f0e3";
   const GOLD = "#b8860b";
   const BORDER = "#d8c9a8";
@@ -285,13 +282,12 @@ function Contract({ f, tarifs }) {
   );
 
   return (
-    <div style={c.wrap}>
+    <div id="contrat-print" style={c.wrap}>
       <div style={c.h1}>CONTRAT DE PRESTATION DE SERVICE</div>
       <hr style={c.divider} />
 
-      {/* PARTIES */}
       <div style={c.partiesBox}>
-        <div style={{...c.partyLeft, breakInside: "avoid", pageBreakInside: "avoid"}}>
+        <div style={{...c.partyLeft, breakInside:"avoid", pageBreakInside:"avoid"}}>
           <span style={c.partyLabel}>Entre — Le Prestataire</span>
           <p style={{ margin: 0 }}>
             <strong>{f.prestNom}</strong>, domicilié au {f.prestAdresse}, {f.prestCpVille},
@@ -299,7 +295,7 @@ function Contract({ f, tarifs }) {
             <strong>Ci-après désigné : le Prestataire.</strong>
           </p>
         </div>
-        <div style={{...c.partyRight, breakInside: "avoid", pageBreakInside: "avoid"}}>
+        <div style={{...c.partyRight, breakInside:"avoid", pageBreakInside:"avoid"}}>
           <span style={c.partyLabel}>Et — Le Client</span>
           <p style={{ margin: 0 }}>
             <strong>SAS OUEST PALETTES</strong>, dont le siège social est situé au Le Four Lutton,
@@ -310,15 +306,12 @@ function Contract({ f, tarifs }) {
         </div>
       </div>
 
-      {/* ART 1–6 */}
       <div style={c.two}>
         <div style={{breakInside:"avoid",pageBreakInside:"avoid"}}>
           <span style={c.at}>Article 1 : Objet du contrat</span>
           <p>Le présent contrat a pour objet {f.objet} dans les locaux du client.</p>
-
           <span style={c.at}>Article 2 : Lieu d'exécution</span>
           <p>La prestation s'effectuera dans les locaux du client au Le Four Lutton, 85140 La Merlatière. Toute intervention sur un autre site devra faire l'objet d'un accord préalable écrit. Le client s'engage à faciliter l'accès du prestataire à ses locaux.</p>
-
           <span style={c.at}>Article 3 : Obligations du Prestataire</span>
           <p>Le prestataire s'engage à :</p>
           <ul style={{ paddingLeft: "17px", margin: "3px 0" }}>
@@ -331,32 +324,26 @@ function Contract({ f, tarifs }) {
         <div style={{breakInside:"avoid",pageBreakInside:"avoid"}}>
           <span style={c.at}>Article 4 : Obligations du Client</span>
           <p>Le client s'engage à fournir au prestataire toutes les informations et le matériel utiles à la bonne exécution de la prestation, et à collaborer pleinement pour le bon déroulement des opérations.</p>
-
           <span style={c.at}>Article 5 : Durée du contrat</span>
           <p>Le présent contrat est conclu pour une durée de <strong>{f.duree} mois</strong> à compter du {f.dateDebut}. Il sera renouvelé par tacite reconduction pour des périodes successives de <strong>{f.reconduction} mois</strong>, sauf dénonciation par l'une des parties par e-mail avec accusé de réception, avec un préavis d'un mois avant l'échéance.</p>
-
           <span style={c.at}>Article 6 : Facturation et paiement</span>
           <p>Le prestataire adressera une facture mensuelle au client, sur la base du relevé quotidien validé, comportant : date et lieu, références du prestataire, décompte détaillé, montant HT et TTC.</p>
           <p>Le règlement s'effectuera par virement bancaire dans un délai de 15 jours à compter de la réception de la facture.</p>
         </div>
       </div>
 
-      {/* ART 7 TARIFS */}
       <span style={c.at}>Article 7 : Prix de la prestation</span>
       <p>Les tarifs convenus entre les parties sont les suivants (prix en euros HT). Ces tarifs sont fermes et ne pourront être modifiés que par avenant écrit signé des deux parties.</p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", margin: "7px 0 14px" }}>
         <TarifTable rows={L} /><TarifTable rows={R} />
       </div>
 
-      {/* ART 8–13 */}
       <div style={c.two}>
         <div style={{breakInside:"avoid",pageBreakInside:"avoid"}}>
           <span style={c.at}>Article 8 : Réception de la prestation</span>
           <p>À l'issue de chaque intervention, le client réceptionne les palettes traitées et approuve la prestation ou émet des réserves motivées. À défaut de réserve, la prestation est réputée approuvée et le transfert des risques s'opère immédiatement.</p>
-
           <span style={c.at}>Article 9 : Responsabilité</span>
           <p>La responsabilité du prestataire est limitée aux dommages matériels directs résultant d'une faute prouvée dans l'exécution de la prestation. Il ne saurait être tenu responsable des dommages liés à une utilisation non conforme des palettes ou à leur usure normale.</p>
-
           <span style={c.at}>Article 10 : Résiliation</span>
           <p>Chaque partie pourra résilier le contrat en cas d'inexécution par l'autre partie de ses obligations, après mise en demeure restée sans effet pendant 15 jours.</p>
           <p>Chaque partie peut également résilier de manière anticipée si l'activité ou les besoins du client diminuent significativement, rendant la prestation économiquement injustifiée. Notification par e-mail avec accusé de réception et justificatif, avec préavis d'un mois.</p>
@@ -364,16 +351,13 @@ function Contract({ f, tarifs }) {
         <div style={{breakInside:"avoid",pageBreakInside:"avoid"}}>
           <span style={c.at}>Article 11 : Force majeure</span>
           <p>Aucune partie ne pourra être tenue responsable d'une inexécution résultant d'un cas de force majeure au sens de l'article 1218 du Code civil. La partie concernée en informera l'autre sans délai. Si l'événement perdure au-delà de 30 jours, les parties se rapprocheront pour convenir d'une modification du contrat.</p>
-
           <span style={c.at}>Article 12 : Droit applicable et litiges</span>
           <p>Le présent contrat est soumis au droit français. En cas de litige, les parties s'engagent à rechercher une solution amiable. À défaut, le litige sera porté devant le Tribunal de {f.tribunal}.</p>
-
           <span style={c.at}>Article 13 : Modification du contrat</span>
           <p>Toute modification du présent contrat devra faire l'objet d'un avenant écrit signé par les deux parties.</p>
         </div>
       </div>
 
-      {/* SIGNATURES */}
       <hr style={c.divider} />
       <p style={{ fontStyle: "italic", textAlign: "right", margin: "0 0 6px", fontSize: "10.5pt", color: "#3a2a00" }}>
         Fait à La Merlatière, le {f.dateSig}, en deux originaux dont un remis au client.
@@ -397,35 +381,153 @@ function Contract({ f, tarifs }) {
   );
 }
 
+// ── Liste des contrats sauvegardés ────────────────────────
+function ListeContrats({ contrats, onOuvrir, onSupprimer, onNouveau }) {
+  const GOLD = "#b8860b";
+  return (
+    <div style={{ maxWidth: "700px", margin: "0 auto", padding: "44px 16px 80px" }}>
+      <div style={{ textAlign: "center", marginBottom: "36px" }}>
+        <div style={{
+          display: "inline-block", background: GOLD, color: "#fff",
+          fontFamily: "'Playfair Display',serif", fontSize: "10px", fontWeight: 700,
+          letterSpacing: ".2em", textTransform: "uppercase",
+          padding: "3px 14px", borderRadius: "20px", marginBottom: "14px",
+        }}>Mes contrats</div>
+        <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "28px", fontWeight: 700, color: "#1a1008", margin: "0 0 7px" }}>
+          Contrats enregistrés
+        </h1>
+        <p style={{ color: "#7a6a52", fontSize: "15px", margin: 0, fontFamily: "'Crimson Pro',serif" }}>
+          {contrats.length} contrat{contrats.length > 1 ? "s" : ""} sauvegardé{contrats.length > 1 ? "s" : ""}
+        </p>
+      </div>
+
+      <button onClick={onNouveau} style={{
+        width: "100%", padding: "14px",
+        background: GOLD, color: "#fff", border: "none", borderRadius: "10px",
+        fontFamily: "'Playfair Display',serif", fontSize: "15px", fontWeight: 700,
+        cursor: "pointer", letterSpacing: ".04em", marginBottom: "24px",
+        boxShadow: "0 4px 18px rgba(184,134,11,.35)",
+      }}>+ Nouveau contrat</button>
+
+      {contrats.length === 0 && (
+        <div style={{
+          textAlign: "center", padding: "48px 24px",
+          background: "#fff", borderRadius: "16px", border: "1px solid #e8ddc8",
+          color: "#9a8a72", fontFamily: "'Crimson Pro',serif", fontSize: "16px",
+        }}>
+          Aucun contrat sauvegardé pour le moment.
+        </div>
+      )}
+
+      {contrats.map((c, i) => (
+        <div key={c.id} style={{
+          background: "#fff", borderRadius: "12px", padding: "18px 22px",
+          border: "1px solid #e8ddc8", boxShadow: "0 2px 12px rgba(44,26,0,.06)",
+          marginBottom: "12px", display: "flex", alignItems: "center", gap: "16px",
+        }}>
+          <div style={{
+            background: "#f7f0e3", borderRadius: "50%", width: "44px", height: "44px",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: "20px", flexShrink: 0,
+          }}>📄</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: "15px", color: "#1a1008", marginBottom: "3px" }}>
+              {c.f.prestNom || "Sans nom"}
+            </div>
+            <div style={{ fontFamily: "'Crimson Pro',serif", fontSize: "13px", color: "#7a6a52" }}>
+              Signé le {c.f.dateSig} · Début : {c.f.dateDebut}
+            </div>
+            <div style={{ fontFamily: "'Crimson Pro',serif", fontSize: "12px", color: "#b8860b", marginTop: "2px" }}>
+              Sauvegardé le {new Date(c.savedAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
+            <button onClick={() => onOuvrir(c)} style={{
+              padding: "7px 14px", background: GOLD, border: "none", color: "#fff",
+              borderRadius: "7px", cursor: "pointer", fontSize: "13px",
+              fontFamily: "'Playfair Display',serif", fontWeight: 700,
+            }}>Ouvrir</button>
+            <button onClick={() => onSupprimer(c.id)} style={{
+              padding: "7px 10px", background: "transparent", border: "1px solid #e8ddc8",
+              color: "#c0392b", borderRadius: "7px", cursor: "pointer", fontSize: "16px",
+            }}>🗑</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── APP ───────────────────────────────────────────────────
 export default function App() {
+  const [vue, setVue] = useState("liste"); // "liste" | "formulaire" | "contrat"
   const [f, setF] = useState(EMPTY);
   const [tarifs, setTarifs] = useState(TARIFS_DEFAUT);
-  const [show, setShow] = useState(false);
+  const [contrats, setContrats] = useState([]);
+  const [contratActif, setContratActif] = useState(null);
   const set = k => v => setF(s => ({ ...s, [k]: v }));
+
+  // Charger les contrats sauvegardés au démarrage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) setContrats(JSON.parse(saved));
+    } catch (e) {}
+  }, []);
+
+  const sauvegarder = (formData, tarifsData) => {
+    const nouveau = {
+      id: Date.now().toString(),
+      savedAt: new Date().toISOString(),
+      f: formData,
+      tarifs: tarifsData,
+    };
+    const updated = [nouveau, ...contrats];
+    setContrats(updated);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(updated)); } catch (e) {}
+    return nouveau;
+  };
+
+  const supprimer = (id) => {
+    if (!window.confirm("Supprimer ce contrat ?")) return;
+    const updated = contrats.filter(c => c.id !== id);
+    setContrats(updated);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(updated)); } catch (e) {}
+  };
+
+  const generer = () => {
+    const saved = sauvegarder(f, tarifs);
+    setContratActif(saved);
+    setVue("contrat");
+  };
+
+  const ouvrirContrat = (c) => {
+    setContratActif(c);
+    setVue("contrat");
+  };
 
   const ok = f.prestNom && f.prestAdresse && f.prestCpVille &&
     f.prestSiret && f.prestNomFamille && f.dateDebut && f.tribunal && f.dateSig;
 
   return (
-    <div style={{ minHeight: "100vh", background: show ? "#ede6d8" : "linear-gradient(145deg,#faf6ef,#f0e6d0)" }}>
+    <div style={{ minHeight: "100vh", background: vue === "contrat" ? "#ede6d8" : "linear-gradient(145deg,#faf6ef,#f0e6d0)" }}>
       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet" />
 
-      {/* Toolbar contrat */}
-      {show && (
+      {/* ── BARRE CONTRAT ── */}
+      {vue === "contrat" && (
         <div id="no-print" style={{
           position: "sticky", top: 0, zIndex: 100, background: "#1a1008",
           padding: "10px 24px", display: "flex", justifyContent: "space-between", alignItems: "center",
           boxShadow: "0 2px 12px rgba(0,0,0,.35)",
         }}>
           <span style={{ fontFamily: "'Playfair Display',serif", color: "#b8860b", fontSize: "16px", fontWeight: 700 }}>
-            Contrat — {f.prestNom}
+            {contratActif?.f?.prestNom || "Contrat"}
           </span>
           <div style={{ display: "flex", gap: "10px" }}>
-            <button onClick={() => setShow(false)} style={{
+            <button onClick={() => setVue("liste")} style={{
               padding: "7px 16px", background: "transparent", border: "1px solid #b8860b55",
               color: "#b8860b", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontFamily: "system-ui",
-            }}>← Modifier</button>
+            }}>← Mes contrats</button>
             <button onClick={() => window.print()} style={{
               padding: "7px 18px", background: "#b8860b", border: "none", color: "#fff",
               borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontFamily: "system-ui", fontWeight: 600,
@@ -434,11 +536,36 @@ export default function App() {
         </div>
       )}
 
-      {/* FORMULAIRE */}
-      {!show && (
-        <div style={{ maxWidth: "700px", margin: "0 auto", padding: "44px 16px 80px" }}>
+      {/* ── BARRE FORMULAIRE ── */}
+      {vue === "formulaire" && (
+        <div id="no-print" style={{
+          position: "sticky", top: 0, zIndex: 100, background: "#1a1008",
+          padding: "10px 24px", display: "flex", alignItems: "center", gap: "14px",
+          boxShadow: "0 2px 12px rgba(0,0,0,.35)",
+        }}>
+          <button onClick={() => setVue("liste")} style={{
+            padding: "6px 14px", background: "transparent", border: "1px solid #b8860b55",
+            color: "#b8860b", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontFamily: "system-ui",
+          }}>← Mes contrats</button>
+          <span style={{ fontFamily: "'Playfair Display',serif", color: "#b8860b", fontSize: "15px", fontWeight: 700 }}>
+            Nouveau contrat
+          </span>
+        </div>
+      )}
 
-          {/* Header */}
+      {/* ── LISTE ── */}
+      {vue === "liste" && (
+        <ListeContrats
+          contrats={contrats}
+          onOuvrir={ouvrirContrat}
+          onSupprimer={supprimer}
+          onNouveau={() => { setF(EMPTY); setTarifs(TARIFS_DEFAUT); setVue("formulaire"); }}
+        />
+      )}
+
+      {/* ── FORMULAIRE ── */}
+      {vue === "formulaire" && (
+        <div style={{ maxWidth: "700px", margin: "0 auto", padding: "44px 16px 80px" }}>
           <div style={{ textAlign: "center", marginBottom: "40px" }}>
             <div style={{
               display: "inline-block", background: "#b8860b", color: "#fff",
@@ -454,7 +581,6 @@ export default function App() {
             </p>
           </div>
 
-          {/* Section 1 — Prestataire */}
           <Section num="1" title="Le Prestataire">
             <Field label="Nom / Raison sociale" value={f.prestNom} onChange={set("prestNom")} placeholder="ex : EURL KM PALETTES" required />
             <Field label="Adresse (rue)" value={f.prestAdresse} onChange={set("prestAdresse")} placeholder="ex : 3 rue Eric Tabarly" required />
@@ -476,7 +602,6 @@ export default function App() {
             </div>
           </Section>
 
-          {/* Section 2 — Contrat */}
           <Section num="2" title="Conditions du contrat">
             <Field label="Objet de la prestation" value={f.objet} onChange={set("objet")} placeholder="ex : le tri et la réparation de palettes" required />
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
@@ -490,10 +615,8 @@ export default function App() {
             </div>
           </Section>
 
-          {/* Section 3 — Tarifs */}
           <TarifsEditor tarifs={tarifs} setTarifs={setTarifs} />
 
-          {/* Client fixe */}
           <div style={{
             background: "#f7f2e8", borderRadius: "10px", padding: "13px 18px",
             border: "1px dashed #c8b888", marginBottom: "26px",
@@ -506,7 +629,7 @@ export default function App() {
             RCS 339 804 684 — Représenté par M. JEAUD Patrice, gérant
           </div>
 
-          <button onClick={() => ok && setShow(true)} style={{
+          <button onClick={() => ok && generer()} style={{
             width: "100%", padding: "15px",
             background: ok ? "#b8860b" : "#c8b888",
             color: "#fff", border: "none", borderRadius: "10px",
@@ -515,15 +638,15 @@ export default function App() {
             boxShadow: ok ? "0 4px 18px rgba(184,134,11,.35)" : "none",
             transition: "all .2s",
           }}>
-            {ok ? "Générer le contrat →" : "Complétez les champs obligatoires *"}
+            {ok ? "Générer et sauvegarder →" : "Complétez les champs obligatoires *"}
           </button>
         </div>
       )}
 
-      {/* CONTRAT */}
-      {show && (
+      {/* ── CONTRAT ── */}
+      {vue === "contrat" && contratActif && (
         <div style={{ padding: "20px 16px 60px" }}>
-          <Contract f={f} tarifs={tarifs} />
+          <ContractView f={contratActif.f} tarifs={contratActif.tarifs} />
         </div>
       )}
 
