@@ -529,9 +529,12 @@ export default function App() {
 
       <style>{`
         @media print {
-          body > div > div:first-child { display: none !important; }
-          body { background: white !important; margin: 0 !important; }
-        }
+  body > div > div:first-child { display: none !important; }
+  body > div > div:nth-child(2) { display: none !important; }
+  body { background: white !important; margin: 0 !important; padding: 0 !important; }
+  body > div > div:last-child { display: block !important; padding: 0 !important; }
+  body > div > div:last-child > div { box-shadow: none !important; border: none !important; }
+}
         * { box-sizing: border-box; }
         input::placeholder { color: #bbb; }
         input[type=number]::-webkit-inner-spin-button { opacity: 1; }
