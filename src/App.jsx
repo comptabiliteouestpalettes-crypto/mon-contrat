@@ -211,55 +211,55 @@ function Contract({ f, tarifs }) {
   const c = {
     wrap: {
       fontFamily: "'Times New Roman',Times,serif",
-      fontSize: "11pt", color: "#1a1008", lineHeight: 1.52,
+      fontSize: "9.5pt", color: "#1a1008", lineHeight: 1.35,
       maxWidth: "800px", margin: "0 auto",
       background: "#fff",
-      padding: "44px 48px",
+      padding: "24px 36px",
       border: `1px solid ${BORDER}`,
       borderTop: `4px solid ${GOLD}`,
     },
     h1: {
-      fontSize: "14pt", fontWeight: "bold", textAlign: "center",
-      marginBottom: "6px", textDecoration: "underline", letterSpacing: ".05em",
+      fontSize: "12pt", fontWeight: "bold", textAlign: "center",
+      marginBottom: "4px", textDecoration: "underline", letterSpacing: ".05em",
       color: "#1a1008",
     },
     divider: {
       height: "2px",
       background: `linear-gradient(to right, transparent, ${GOLD}, transparent)`,
-      margin: "14px 0 18px", border: "none",
+      margin: "8px 0 10px", border: "none",
     },
     partiesBox: {
       display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0",
       background: BG2, border: `1px solid ${BORDER}`,
-      borderRadius: "4px", marginBottom: "16px", overflow: "hidden",
+      borderRadius: "4px", marginBottom: "8px", overflow: "hidden",
     },
-    partyLeft: { padding: "14px 16px", borderRight: `1px solid ${BORDER}` },
-    partyRight: { padding: "14px 16px" },
+    partyLeft: { padding: "7px 10px", borderRight: `1px solid ${BORDER}` },
+    partyRight: { padding: "7px 10px" },
     partyLabel: {
-      fontWeight: "bold", fontSize: "10pt",
+      fontWeight: "bold", fontSize: "8pt",
       color: GOLD, letterSpacing: ".06em",
-      textTransform: "uppercase", marginBottom: "6px", display: "block",
+      textTransform: "uppercase", marginBottom: "3px", display: "block",
     },
-    two: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px", marginBottom: "8px" },
+    two: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "4px" },
     at: {
       fontWeight: "bold", textDecoration: "underline",
-      display: "block", marginTop: "12px", marginBottom: "3px", color: "#1a1008",
+      display: "block", marginTop: "7px", marginBottom: "2px", color: "#1a1008",
     },
-    tt: { width: "100%", borderCollapse: "collapse", fontSize: "10pt" },
+    tt: { width: "100%", borderCollapse: "collapse", fontSize: "8.5pt" },
     th: {
-      border: `1px solid ${BORDER}`, padding: "4px 7px",
+      border: `1px solid ${BORDER}`, padding: "2px 5px",
       background: BG2, fontWeight: "bold", textAlign: "left", color: "#3a2a00",
     },
-    td: { border: `1px solid ${BORDER}`, padding: "3px 7px" },
-    tdAlt: { border: `1px solid ${BORDER}`, padding: "3px 7px", background: "#fff" },
-    sigRow: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", marginTop: "22px" },
+    td: { border: `1px solid ${BORDER}`, padding: "1px 5px" },
+    tdAlt: { border: `1px solid ${BORDER}`, padding: "1px 5px", background: "#fff" },
+    sigRow: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginTop: "10px" },
     sigBox: {
       background: BG2, border: `1px solid ${BORDER}`,
-      borderRadius: "4px", padding: "12px 16px",
+      borderRadius: "4px", padding: "7px 10px",
     },
     sigLine: {
-      borderTop: `1px solid ${GOLD}`, paddingTop: "6px",
-      marginTop: "40px", fontSize: "10pt", color: "#7a6a52",
+      borderTop: `1px solid ${GOLD}`, paddingTop: "4px",
+      marginTop: "26px", fontSize: "9pt", color: "#7a6a52",
     },
   };
 
@@ -529,12 +529,16 @@ export default function App() {
 
       <style>{`
         @media print {
-  body > div > div:first-child { display: none !important; }
-  body > div > div:nth-child(2) { display: none !important; }
-  body { background: white !important; margin: 0 !important; padding: 0 !important; }
-  body > div > div:last-child { display: block !important; padding: 0 !important; }
-  body > div > div:last-child > div { box-shadow: none !important; border: none !important; }
-}
+          body > div > div:first-child { display: none !important; }
+          body > div > div:nth-child(2) { display: none !important; }
+          body { background: white !important; margin: 0 !important; padding: 0 !important; }
+          body > div > div:last-child { display: block !important; padding: 0 !important; }
+          body > div > div:last-child > div { box-shadow: none !important; border-left: none !important; border-right: none !important; border-bottom: none !important; }
+          @page { margin: 8mm 10mm; size: A4; }
+          p { margin: 0 0 2px !important; }
+          ul { margin: 2px 0 !important; }
+          li { margin-bottom: 1px !important; }
+        }
         * { box-sizing: border-box; }
         input::placeholder { color: #bbb; }
         input[type=number]::-webkit-inner-spin-button { opacity: 1; }
