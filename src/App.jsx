@@ -240,7 +240,7 @@ function Contract({ f, tarifs }) {
       color: GOLD, letterSpacing: ".06em",
       textTransform: "uppercase", marginBottom: "3px", display: "block",
     },
-    two: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "4px" },
+    two: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "4px", breakInside: "avoid", pageBreakInside: "avoid" },
     at: {
       fontWeight: "bold", textDecoration: "underline",
       display: "block", marginTop: "7px", marginBottom: "2px", color: "#1a1008",
@@ -291,7 +291,7 @@ function Contract({ f, tarifs }) {
 
       {/* PARTIES */}
       <div style={c.partiesBox}>
-        <div style={c.partyLeft}>
+        <div style={{...c.partyLeft, breakInside: "avoid", pageBreakInside: "avoid"}}>
           <span style={c.partyLabel}>Entre — Le Prestataire</span>
           <p style={{ margin: 0 }}>
             <strong>{f.prestNom}</strong>, domicilié au {f.prestAdresse}, {f.prestCpVille},
@@ -299,7 +299,7 @@ function Contract({ f, tarifs }) {
             <strong>Ci-après désigné : le Prestataire.</strong>
           </p>
         </div>
-        <div style={c.partyRight}>
+        <div style={{...c.partyRight, breakInside: "avoid", pageBreakInside: "avoid"}}>
           <span style={c.partyLabel}>Et — Le Client</span>
           <p style={{ margin: 0 }}>
             <strong>SAS OUEST PALETTES</strong>, dont le siège social est situé au Le Four Lutton,
@@ -312,7 +312,7 @@ function Contract({ f, tarifs }) {
 
       {/* ART 1–6 */}
       <div style={c.two}>
-        <div>
+        <div style={{breakInside:"avoid",pageBreakInside:"avoid"}}>
           <span style={c.at}>Article 1 : Objet du contrat</span>
           <p>Le présent contrat a pour objet {f.objet} dans les locaux du client.</p>
 
@@ -328,7 +328,7 @@ function Contract({ f, tarifs }) {
             <li>Joindre en annexe une copie à jour de son assurance RC professionnelle, une copie de son attestation de fourniture des déclarations sociales et de paiement des cotisations et contributions, une copie de son attestation de régularité fiscale, une copie de son KBIS, une copie des CNI et DPAE des salariés.</li>
           </ul>
         </div>
-        <div>
+        <div style={{breakInside:"avoid",pageBreakInside:"avoid"}}>
           <span style={c.at}>Article 4 : Obligations du Client</span>
           <p>Le client s'engage à fournir au prestataire toutes les informations et le matériel utiles à la bonne exécution de la prestation, et à collaborer pleinement pour le bon déroulement des opérations.</p>
 
@@ -350,7 +350,7 @@ function Contract({ f, tarifs }) {
 
       {/* ART 8–13 */}
       <div style={c.two}>
-        <div>
+        <div style={{breakInside:"avoid",pageBreakInside:"avoid"}}>
           <span style={c.at}>Article 8 : Réception de la prestation</span>
           <p>À l'issue de chaque intervention, le client réceptionne les palettes traitées et approuve la prestation ou émet des réserves motivées. À défaut de réserve, la prestation est réputée approuvée et le transfert des risques s'opère immédiatement.</p>
 
@@ -361,7 +361,7 @@ function Contract({ f, tarifs }) {
           <p>Chaque partie pourra résilier le contrat en cas d'inexécution par l'autre partie de ses obligations, après mise en demeure restée sans effet pendant 15 jours.</p>
           <p>Chaque partie peut également résilier de manière anticipée si l'activité ou les besoins du client diminuent significativement, rendant la prestation économiquement injustifiée. Notification par e-mail avec accusé de réception et justificatif, avec préavis d'un mois.</p>
         </div>
-        <div>
+        <div style={{breakInside:"avoid",pageBreakInside:"avoid"}}>
           <span style={c.at}>Article 11 : Force majeure</span>
           <p>Aucune partie ne pourra être tenue responsable d'une inexécution résultant d'un cas de force majeure au sens de l'article 1218 du Code civil. La partie concernée en informera l'autre sans délai. Si l'événement perdure au-delà de 30 jours, les parties se rapprocheront pour convenir d'une modification du contrat.</p>
 
@@ -538,20 +538,6 @@ export default function App() {
           p { margin: 0 0 2px !important; }
           ul { margin: 2px 0 !important; }
           li { margin-bottom: 1px !important; }
-          /* Passer toutes les grilles en colonne simple à l'impression */
-          div[style*="grid-template-columns: 1fr 1fr"] {
-            display: block !important;
-          }
-          div[style*="grid-template-columns: 1fr 1fr"] > div {
-            width: 100% !important;
-            margin-bottom: 4px !important;
-          }
-          /* Garder les tableaux de tarifs côte à côte */
-          div[style*="gap: 10px"] {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-          }
-          table { break-inside: avoid !important; page-break-inside: avoid !important; }
           p, li { orphans: 3; widows: 3; }
         }
         * { box-sizing: border-box; }
