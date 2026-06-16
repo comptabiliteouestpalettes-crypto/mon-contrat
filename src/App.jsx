@@ -414,7 +414,7 @@ function ContractViewPalettes({ f, tarifs }) {
       </div>
 
       <div style={c.two}>
-        <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+        <div>
           <span style={c.at}>Article 1 : Objet du contrat</span>
           <p>Le présent contrat a pour objet {f.objet} dans les locaux du client.</p>
           <span style={c.at}>Article 2 : Lieu d'exécution</span>
@@ -428,7 +428,7 @@ function ContractViewPalettes({ f, tarifs }) {
             <li>Joindre en annexe une copie à jour de son assurance RC professionnelle, une copie de son attestation de fourniture des déclarations sociales et de paiement des cotisations et contributions, une copie de son attestation de régularité fiscale, une copie de son KBIS, une copie des CNI et DPAE des salariés.</li>
           </ul>
         </div>
-        <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+        <div>
           <span style={c.at}>Article 4 : Obligations du Client</span>
           <p>Le client s'engage à fournir au prestataire toutes les informations et le matériel utiles à la bonne exécution de la prestation, et à collaborer pleinement pour le bon déroulement des opérations.</p>
           <span style={c.at}>Article 5 : Durée du contrat</span>
@@ -446,7 +446,7 @@ function ContractViewPalettes({ f, tarifs }) {
       </div>
 
       <div style={c.two}>
-        <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+        <div>
           <span style={c.at}>Article 8 : Réception de la prestation</span>
           <p>À l'issue de chaque intervention, le client réceptionne les palettes traitées et approuve la prestation ou émet des réserves motivées. À défaut de réserve, la prestation est réputée approuvée et le transfert des risques s'opère immédiatement.</p>
           <span style={c.at}>Article 9 : Responsabilité</span>
@@ -455,7 +455,7 @@ function ContractViewPalettes({ f, tarifs }) {
           <p>Chaque partie pourra résilier le contrat en cas d'inexécution par l'autre partie de ses obligations, après mise en demeure restée sans effet pendant 15 jours.</p>
           <p>Chaque partie peut également résilier de manière anticipée si l'activité ou les besoins du client diminuent significativement, rendant la prestation économiquement injustifiée. Notification par e-mail avec accusé de réception et justificatif, avec préavis d'un mois.</p>
         </div>
-        <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+        <div>
           <span style={c.at}>Article 11 : Force majeure</span>
           <p>Aucune partie ne pourra être tenue responsable d'une inexécution résultant d'un cas de force majeure au sens de l'article 1218 du Code civil. La partie concernée en informera l'autre sans délai. Si l'événement perdure au-delà de 30 jours, les parties se rapprocheront pour convenir d'une modification du contrat.</p>
           <span style={c.at}>Article 12 : Droit applicable et litiges</span>
@@ -473,12 +473,12 @@ function ContractViewPalettes({ f, tarifs }) {
         (Faire précéder les signatures de la mention « Lu et approuvé. Bon pour accord »)
       </p>
       <div style={c.sigRow}>
-        <div style={c.sigBox}>
+        <div style={{ ...c.sigBox, breakInside: "avoid", pageBreakInside: "avoid" }}>
           <p style={{ margin: "0 0 2px", fontWeight: "bold" }}>Le Client :</p>
           <p style={{ margin: 0 }}>OUEST PALETTES — M. JEAUD Patrice</p>
           <div style={c.sigLine}>Signature</div>
         </div>
-        <div style={c.sigBox}>
+        <div style={{ ...c.sigBox, breakInside: "avoid", pageBreakInside: "avoid" }}>
           <p style={{ margin: "0 0 2px", fontWeight: "bold" }}>Le Prestataire :</p>
           <p style={{ margin: 0 }}>{f.prestNom} — {rep}</p>
           <div style={c.sigLine}>Signature</div>
@@ -568,7 +568,7 @@ function ContractViewChauffeur({ f, tarifs }) {
       </div>
 
       <div style={c.two}>
-        <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+        <div>
           <span style={c.at}>Article 1 : Objet du contrat</span>
           <p>Le présent contrat a pour objet {f.ch_objet} pour le compte du Client, depuis et vers ses sites d'exploitation.</p>
           <span style={c.at}>Article 2 : Lieu et périmètre d'exécution</span>
@@ -594,7 +594,7 @@ function ContractViewChauffeur({ f, tarifs }) {
           <span style={c.at}>Article 7 : Facturation et paiement</span>
           <p>Le Prestataire adressera une facture mensuelle sur la base du relevé d'heures quotidien validé, comportant : date et lieu, références du Prestataire, décompte détaillé des heures par type de prestation, montant HT et TTC. Le règlement s'effectuera par virement bancaire dans un délai de 15 jours à compter de la réception de la facture.</p>
         </div>
-        <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+        <div>
           <span style={c.at}>Article 8 : Prix de la prestation</span>
           <p>Les tarifs convenus entre les parties sont les suivants (prix en euros HT). Ces tarifs sont fermes et ne pourront être modifiés que par avenant écrit signé des deux parties.</p>
           <div style={{ margin: "6px 0 8px" }}>
@@ -628,12 +628,12 @@ function ContractViewChauffeur({ f, tarifs }) {
         (Faire précéder les signatures de la mention « Lu et approuvé. Bon pour accord »)
       </p>
       <div style={c.sigRow}>
-        <div style={c.sigBox}>
+        <div style={{ ...c.sigBox, breakInside: "avoid", pageBreakInside: "avoid" }}>
           <p style={{ margin: "0 0 2px", fontWeight: "bold" }}>Le Client :</p>
           <p style={{ margin: 0 }}>OUEST PALETTES — M. JEAUD Patrice</p>
           <div style={c.sigLine}>Signature</div>
         </div>
-        <div style={c.sigBox}>
+        <div style={{ ...c.sigBox, breakInside: "avoid", pageBreakInside: "avoid" }}>
           <p style={{ margin: "0 0 2px", fontWeight: "bold" }}>Le Prestataire :</p>
           <p style={{ margin: 0 }}>{f.ch_nom} — {rep}</p>
           <div style={c.sigLine}>Signature</div>
@@ -957,14 +957,20 @@ export default function App() {
         @media print {
           * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           @page { margin: 8mm 10mm; size: A4; }
-          body { background: white !important; margin: 0 !important; padding: 0 !important; }
+          html, body { background: white !important; margin: 0 !important; padding: 0 !important; }
           #no-print { display: none !important; }
           body > div > div:last-child { padding: 0 !important; }
-          body > div > div:last-child > div { box-shadow: none !important; }
-          p { margin: 0 0 2px !important; }
+          body > div > div:last-child > div { box-shadow: none !important; border: none !important; }
+          p { margin: 0 0 2px !important; orphans: 3; widows: 3; }
           ul { margin: 2px 0 !important; }
-          li { margin-bottom: 1px !important; }
-          p, li { orphans: 3; widows: 3; }
+          li { margin-bottom: 1px !important; orphans: 2; widows: 2; }
+          /* Seuls les petits blocs atomiques restent groupés : titres d'article avec leur 1er paragraphe, tableaux, signatures */
+          #contrat-print table,
+          #contrat-print tr,
+          #contrat-print .sig-box-print {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
         }
         * { box-sizing: border-box; }
         input::placeholder { color: #bbb; }
