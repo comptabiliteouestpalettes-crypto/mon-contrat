@@ -56,6 +56,15 @@ const EMPTY_CHAUFFEUR = {
   ch_objet: "la livraison et la collecte de palettes",
   ch_duree: "6", ch_recon: "6", ch_preavis: "30",
   ch_dateDebut: "", ch_tribunal: "", ch_dateSig: "",
+  ch_freqFacturation: "mensuelle", ch_delaiPaiement: "15",
+  ch_delaiValidationComptant: "",
+};
+
+const FACTURATION_LABELS = {
+  mensuelle: "mensuelle",
+  hebdomadaire: "hebdomadaire",
+  quinzaine: "à la quinzaine",
+  annuelle: "annuelle",
 };
 
 const STORAGE_KEY_PALETTES = "contrats_sauvegardes";
@@ -358,7 +367,7 @@ function ContractViewPalettes({ f, tarifs }) {
     partyRight: { padding: "7px 10px" },
     partyLabel: { fontWeight: "bold", fontSize: "8pt", color: GOLD, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: "3px", display: "block" },
     two: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "4px" },
-    at: { fontWeight: "bold", textDecoration: "underline", display: "block", marginTop: "7px", marginBottom: "2px" },
+    at: { fontWeight: "bold", textDecoration: "underline", display: "block", marginTop: "7px", marginBottom: "2px", breakAfter: "avoid", pageBreakAfter: "avoid" },
     tt: { width: "100%", borderCollapse: "collapse", fontSize: "8.5pt" },
     th: { border: `1px solid ${BORDER}`, padding: "2px 5px", background: BG2, fontWeight: "bold", textAlign: "left", color: "#3a2a00" },
     td: { border: `1px solid ${BORDER}`, padding: "1px 5px" },
@@ -508,7 +517,7 @@ function ContractViewChauffeur({ f, tarifs }) {
     partyRight: { padding: "7px 10px" },
     partyLabel: { fontWeight: "bold", fontSize: "8pt", color: GOLD, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: "3px", display: "block" },
     two: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "4px" },
-    at: { fontWeight: "bold", textDecoration: "underline", display: "block", marginTop: "7px", marginBottom: "2px" },
+    at: { fontWeight: "bold", textDecoration: "underline", display: "block", marginTop: "7px", marginBottom: "2px", breakAfter: "avoid", pageBreakAfter: "avoid" },
     tt: { width: "100%", borderCollapse: "collapse", fontSize: "8.5pt" },
     th: { border: `1px solid ${BORDER}`, padding: "2px 5px", background: BG2, fontWeight: "bold", textAlign: "left", color: "#3a2a00" },
     td: { border: `1px solid ${BORDER}`, padding: "1px 5px" },
@@ -592,7 +601,12 @@ function ContractViewChauffeur({ f, tarifs }) {
           <span style={c.at}>Article 6 : Durée du contrat</span>
           <p>Le présent contrat est conclu pour une durée de <strong>{f.ch_duree} mois</strong> à compter du {f.ch_dateDebut}. Il sera renouvelé par tacite reconduction pour des périodes successives de <strong>{f.ch_recon} mois</strong>, sauf dénonciation par e-mail avec accusé de réception, avec un préavis de <strong>{f.ch_preavis} jours</strong> avant l'échéance.</p>
           <span style={c.at}>Article 7 : Facturation et paiement</span>
-          <p>Le Prestataire adressera une facture mensuelle sur la base du relevé d'heures quotidien validé, comportant : date et lieu, références du Prestataire, décompte détaillé des heures par type de prestation, montant HT et TTC. Le règlement s'effectuera par virement bancaire dans un délai de 15 jours à compter de la réception de la facture.</p>
+          <p>Le Prestataire adressera une facture {FACTURATION_LABELS[f.ch_freqFacturation] || "mensuelle"} sur la base du relevé d'heures quotidien validé, comportant : date et lieu, références du Prestataire, décompte détaillé des heures par type de prestation, montant HT et TTC.{" "}
+          {f.ch_delaiPaiement === "comptant" ? (
+            <>Le règlement s'effectuera par virement bancaire au comptant, sous réserve d'un délai de validation de <strong>{f.ch_delaiValidationComptant}</strong> à compter de la réception de la facture, et sous réserve que la personne en charge des virements au sein du Client soit présente. À défaut, le virement sera effectué le jour ouvré suivant.</>
+          ) : (
+            <>Le règlement s'effectuera par virement bancaire dans un délai de <strong>{f.ch_delaiPaiement} jours</strong> à compter de la réception de la facture.</>
+          )}</p>
         </div>
         <div>
           <span style={c.at}>Article 8 : Prix de la prestation</span>
@@ -708,7 +722,8 @@ export default function App() {
   // ── HELPERS CHAUFFEURS ──
   const okChauffeur = fc.ch_nom && fc.ch_adresse && fc.ch_cpVille && fc.ch_siret &&
     fc.ch_nomFamille && fc.ch_permis && fc.ch_carte && fc.ch_assurance &&
-    fc.ch_dateDebut && fc.ch_tribunal && fc.ch_dateSig;
+    fc.ch_dateDebut && fc.ch_tribunal && fc.ch_dateSig &&
+    (fc.ch_delaiPaiement !== "comptant" || fc.ch_delaiValidationComptant);
 
   const sauvegarderChauffeur = () => {
     const c = {
@@ -937,6 +952,17 @@ export default function App() {
                   <Field label="Tribunal compétent" value={fc.ch_tribunal} onChange={setFC("ch_tribunal")} placeholder="ex : La Roche-sur-Yon" required />
                   <Field label="Date de signature" value={fc.ch_dateSig} onChange={setFC("ch_dateSig")} placeholder="ex : 1er août 2025" required />
                 </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                  <SelectField label="Fréquence de facturation" value={fc.ch_freqFacturation} onChange={setFC("ch_freqFacturation")}
+                    options={["mensuelle", "hebdomadaire", "quinzaine", "annuelle"]} required />
+                  <SelectField label="Délai de paiement" value={fc.ch_delaiPaiement} onChange={setFC("ch_delaiPaiement")}
+                    options={["15", "30", "comptant"]} required />
+                </div>
+                {fc.ch_delaiPaiement === "comptant" && (
+                  <Field label="Délai de validation (paiement comptant)" value={fc.ch_delaiValidationComptant}
+                    onChange={setFC("ch_delaiValidationComptant")} placeholder="ex : 24 heures, 2 jours ouvrés..."
+                    hint="Le virement sera effectué sous réserve de la présence de la personne en charge des virements" required />
+                )}
               </Section>
 
               <TarifsEditor num="3" tarifs={tarifsCh} setTarifs={setTarifsCh} />
@@ -970,6 +996,16 @@ export default function App() {
           #contrat-print .sig-box-print {
             break-inside: avoid !important;
             page-break-inside: avoid !important;
+          }
+          /* Empêche un titre d'article de se retrouver seul en bas de page, séparé de son contenu */
+          #contrat-print span[style*="text-decoration: underline"] {
+            break-after: avoid !important;
+            page-break-after: avoid !important;
+          }
+          #contrat-print span[style*="text-decoration: underline"] + p,
+          #contrat-print span[style*="text-decoration: underline"] + ul {
+            break-before: avoid !important;
+            page-break-before: avoid !important;
           }
         }
         * { box-sizing: border-box; }
