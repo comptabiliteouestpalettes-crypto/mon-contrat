@@ -58,6 +58,7 @@ const EMPTY_CHAUFFEUR = {
   ch_dateDebut: "", ch_tribunal: "", ch_dateSig: "",
   ch_freqFacturation: "mensuelle", ch_delaiPaiement: "15",
   ch_delaiValidationComptant: "",
+  ch_probatoire: "oui", ch_probatoireJours: "15", ch_probatoirePreavis: "48",
 };
 
 const FACTURATION_LABELS = {
@@ -66,6 +67,20 @@ const FACTURATION_LABELS = {
   quinzaine: "à la quinzaine",
   annuelle: "annuelle",
 };
+
+const MOIS_FR = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+
+// Formate une date ISO (YYYY-MM-DD) en "1er août 2025" ; ajoute un nombre de jours si fourni.
+function formatDateFR(isoDate, addDays = 0) {
+  if (!isoDate) return "";
+  const d = new Date(isoDate + "T00:00:00");
+  if (isNaN(d)) return "";
+  if (addDays) d.setDate(d.getDate() + addDays);
+  const jour = d.getDate();
+  const moisLabel = MOIS_FR[d.getMonth()];
+  const jourLabel = jour === 1 ? "1er" : jour;
+  return `${jourLabel} ${moisLabel} ${d.getFullYear()}`;
+}
 
 const STORAGE_KEY_PALETTES = "contrats_sauvegardes";
 const STORAGE_KEY_CHAUFFEURS = "contrats_chauffeurs";
@@ -125,6 +140,27 @@ function NumField({ label, value, onChange, required, suffix = "mois" }) {
     </div>
   );
 }
+
+function DateField({ label, value, onChange, hint, required }) {
+  const [focus, setFocus] = useState(false);
+  return (
+    <div style={{ marginBottom: "18px" }}>
+      <label style={{
+        display: "block", fontFamily: "'Playfair Display',serif",
+        fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em",
+        textTransform: "uppercase", color: focus ? "#b8860b" : "#6b5a3e",
+        marginBottom: "5px", transition: "color .2s",
+      }}>
+        {label}{required && <span style={{ color: "#c0392b" }}> *</span>}
+      </label>
+      {hint && <p style={{ fontSize: "11px", color: "#9a8a72", margin: "-2px 0 5px", fontStyle: "italic" }}>{hint}</p>}
+      <input type="date" value={value} onChange={e => onChange(e.target.value)}
+        onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
+        style={inputBase(focus)} />
+    </div>
+  );
+}
+
 
 function SelectField({ label, value, onChange, options, required }) {
   const [focus, setFocus] = useState(false);
@@ -599,7 +635,14 @@ function ContractViewChauffeur({ f, tarifs }) {
           <span style={c.at}>Article 5 : Obligations du Client</span>
           <p>Le Client s'engage à fournir un véhicule en bon état de fonctionnement et conforme à la réglementation, équipé d'un chronotachygraphe numérique homologué. Il communique les tournées et instructions nécessaires à la bonne exécution des prestations.</p>
           <span style={c.at}>Article 6 : Durée du contrat</span>
-          <p>Le présent contrat est conclu pour une durée de <strong>{f.ch_duree} mois</strong> à compter du {f.ch_dateDebut}. Il sera renouvelé par tacite reconduction pour des périodes successives de <strong>{f.ch_recon} mois</strong>, sauf dénonciation par e-mail avec accusé de réception, avec un préavis de <strong>{f.ch_preavis} jours</strong> avant l'échéance.</p>
+          <p>Le présent contrat est conclu pour une durée de <strong>{f.ch_duree} mois</strong> à compter du {formatDateFR(f.ch_dateDebut)}. Il sera renouvelé par tacite reconduction pour des périodes successives de <strong>{f.ch_recon} mois</strong>, sauf dénonciation par e-mail avec accusé de réception, avec un préavis de <strong>{f.ch_preavis} jours</strong> avant l'échéance.</p>
+          {f.ch_probatoire === "oui" && (
+            <>
+              <span style={c.at}>Article 6 bis : Période probatoire</span>
+              <p>Les parties conviennent d'une période probatoire d'une durée de <strong>{f.ch_probatoireJours} jours</strong> calendaires, soit du {formatDateFR(f.ch_dateDebut)} au {formatDateFR(f.ch_dateDebut, Number(f.ch_probatoireJours) - 1)}.</p>
+              <p>Au cours de cette période, chaque partie pourra mettre fin au contrat à tout moment, par écrit (e-mail avec accusé de réception ou lettre recommandée), moyennant un préavis de <strong>{f.ch_probatoirePreavis} heures</strong>, sans avoir à justifier de motif, et sans qu'aucune indemnité ne soit due de part et d'autre. Les prestations effectivement réalisées durant cette période resteront dues au Prestataire.</p>
+            </>
+          )}
           <span style={c.at}>Article 7 : Facturation et paiement</span>
           <p>Le Prestataire adressera une facture {FACTURATION_LABELS[f.ch_freqFacturation] || "mensuelle"} sur la base du relevé d'heures quotidien validé, comportant : date et lieu, références du Prestataire, décompte détaillé des heures par type de prestation, montant HT et TTC.{" "}
           {f.ch_delaiPaiement === "comptant" ? (
@@ -723,7 +766,8 @@ export default function App() {
   const okChauffeur = fc.ch_nom && fc.ch_adresse && fc.ch_cpVille && fc.ch_siret &&
     fc.ch_nomFamille && fc.ch_permis && fc.ch_carte && fc.ch_assurance &&
     fc.ch_dateDebut && fc.ch_tribunal && fc.ch_dateSig &&
-    (fc.ch_delaiPaiement !== "comptant" || fc.ch_delaiValidationComptant);
+    (fc.ch_delaiPaiement !== "comptant" || fc.ch_delaiValidationComptant) &&
+    (fc.ch_probatoire !== "oui" || (fc.ch_probatoireJours && fc.ch_probatoirePreavis));
 
   const sauvegarderChauffeur = () => {
     const c = {
@@ -948,7 +992,7 @@ export default function App() {
                   <NumField label="Préavis résiliation" value={fc.ch_preavis} onChange={setFC("ch_preavis")} suffix="jours" />
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
-                  <Field label="Date de début" value={fc.ch_dateDebut} onChange={setFC("ch_dateDebut")} placeholder="ex : 1er août 2025" required />
+                  <DateField label="Date de début" value={fc.ch_dateDebut} onChange={setFC("ch_dateDebut")} required />
                   <Field label="Tribunal compétent" value={fc.ch_tribunal} onChange={setFC("ch_tribunal")} placeholder="ex : La Roche-sur-Yon" required />
                   <Field label="Date de signature" value={fc.ch_dateSig} onChange={setFC("ch_dateSig")} placeholder="ex : 1er août 2025" required />
                 </div>
@@ -962,6 +1006,21 @@ export default function App() {
                   <Field label="Délai de validation (paiement comptant)" value={fc.ch_delaiValidationComptant}
                     onChange={setFC("ch_delaiValidationComptant")} placeholder="ex : 24 heures, 2 jours ouvrés..."
                     hint="Le virement sera effectué sous réserve de la présence de la personne en charge des virements" required />
+                )}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginTop: "4px" }}>
+                  <SelectField label="Période probatoire" value={fc.ch_probatoire} onChange={setFC("ch_probatoire")}
+                    options={["oui", "non"]} required />
+                  {fc.ch_probatoire === "oui" && (
+                    <>
+                      <NumField label="Durée probatoire" value={fc.ch_probatoireJours} onChange={setFC("ch_probatoireJours")} suffix="jours" required />
+                      <NumField label="Préavis de rupture" value={fc.ch_probatoirePreavis} onChange={setFC("ch_probatoirePreavis")} suffix="heures" required />
+                    </>
+                  )}
+                </div>
+                {fc.ch_probatoire === "oui" && fc.ch_dateDebut && (
+                  <p style={{ fontSize: "13px", color: "#7a6a52", fontFamily: "'Crimson Pro',serif", margin: "-10px 0 18px", fontStyle: "italic" }}>
+                    Période probatoire : du {formatDateFR(fc.ch_dateDebut)} au {formatDateFR(fc.ch_dateDebut, Number(fc.ch_probatoireJours) - 1)}
+                  </p>
                 )}
               </Section>
 
