@@ -59,6 +59,7 @@ const EMPTY_CHAUFFEUR = {
   ch_freqFacturation: "mensuelle", ch_delaiPaiement: "15",
   ch_delaiValidationComptant: "",
   ch_probatoire: "oui", ch_probatoireJours: "15", ch_probatoirePreavis: "48",
+  ch_joursTravailles: [],
 };
 
 const FACTURATION_LABELS = {
@@ -69,6 +70,8 @@ const FACTURATION_LABELS = {
 };
 
 const MOIS_FR = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+
+const JOURS_SEMAINE = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
 
 // Formate une date ISO (YYYY-MM-DD) en "1er août 2025" ; ajoute un nombre de jours si fourni.
 function formatDateFR(isoDate, addDays = 0) {
@@ -618,6 +621,12 @@ function ContractViewChauffeur({ f, tarifs }) {
           <p>Le présent contrat a pour objet {f.ch_objet} pour le compte du Client, depuis et vers ses sites d'exploitation.</p>
           <span style={c.at}>Article 2 : Lieu et périmètre d'exécution</span>
           <p>Les prestations s'effectuent au départ du dépôt du Client situé au Le Four Lutton, 85140 La Merlatière, selon les tournées définies par le Client. Toute extension géographique fera l'objet d'un accord préalable écrit.</p>
+          <span style={c.at}>Article 2 bis : Jours habituels d'intervention</span>
+          <p>
+            {Array.isArray(f.ch_joursTravailles) && f.ch_joursTravailles.length > 0
+              ? <>Les jours habituels d'intervention convenus entre les parties sont : <strong>{JOURS_SEMAINE.filter(jour => f.ch_joursTravailles.includes(jour)).join(", ")}</strong>. Toute adaptation de ces jours sera convenue entre les parties.</>
+              : "Les jours d'intervention sont convenus entre les parties en fonction des prestations et des tournées à réaliser."}
+          </p>
           <span style={c.at}>Article 3 : Obligations du Prestataire</span>
           <p>Le Prestataire s'engage à :</p>
           <ul style={{ paddingLeft: "17px", margin: "3px 0" }}>
@@ -996,6 +1005,53 @@ export default function App() {
                   <Field label="Tribunal compétent" value={fc.ch_tribunal} onChange={setFC("ch_tribunal")} placeholder="ex : La Roche-sur-Yon" required />
                   <Field label="Date de signature" value={fc.ch_dateSig} onChange={setFC("ch_dateSig")} placeholder="ex : 1er août 2025" required />
                 </div>
+
+                <div style={{ margin: "4px 0 18px", padding: "16px", background: "#fdfaf5", border: "1px solid #e8ddc8", borderRadius: "10px" }}>
+                  <label style={{
+                    display: "block", fontFamily: "'Playfair Display',serif",
+                    fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em",
+                    textTransform: "uppercase", color: "#6b5a3e", marginBottom: "6px"
+                  }}>
+                    Jours travaillés — optionnel
+                  </label>
+                  <p style={{ fontSize: "13px", color: "#7a6a52", margin: "0 0 12px", fontFamily: "'Crimson Pro',serif" }}>
+                    Cochez les jours habituels prévus au contrat. Vous pouvez laisser toutes les cases décochées.
+                  </p>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "9px" }}>
+                    {JOURS_SEMAINE.map(jour => {
+                      const joursSelectionnes = Array.isArray(fc.ch_joursTravailles) ? fc.ch_joursTravailles : [];
+                      const coche = joursSelectionnes.includes(jour);
+                      return (
+                        <label key={jour} style={{
+                          display: "flex", alignItems: "center", gap: "8px",
+                          padding: "9px 10px", borderRadius: "7px",
+                          border: `1px solid ${coche ? "#b8860b" : "#ddd0bb"}`,
+                          background: coche ? "#f7f0e3" : "#fff",
+                          cursor: "pointer", fontFamily: "'Crimson Pro',serif",
+                          fontSize: "14px", color: "#1a1008"
+                        }}>
+                          <input
+                            type="checkbox"
+                            checked={coche}
+                            onChange={() => setFC("ch_joursTravailles")(
+                              coche
+                                ? joursSelectionnes.filter(j => j !== jour)
+                                : JOURS_SEMAINE.filter(j => joursSelectionnes.includes(j) || j === jour)
+                            )}
+                            style={{ accentColor: "#b8860b" }}
+                          />
+                          {jour}
+                        </label>
+                      );
+                    })}
+                  </div>
+                  {Array.isArray(fc.ch_joursTravailles) && fc.ch_joursTravailles.length > 0 && (
+                    <p style={{ fontSize: "13px", color: "#6b5a3e", margin: "12px 0 0", fontFamily: "'Crimson Pro',serif" }}>
+                      Sélection : <strong>{JOURS_SEMAINE.filter(jour => fc.ch_joursTravailles.includes(jour)).join(", ")}</strong>
+                    </p>
+                  )}
+                </div>
+
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                   <SelectField label="Fréquence de facturation" value={fc.ch_freqFacturation} onChange={setFC("ch_freqFacturation")}
                     options={["mensuelle", "hebdomadaire", "quinzaine", "annuelle"]} required />
