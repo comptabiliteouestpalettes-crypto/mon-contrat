@@ -625,7 +625,7 @@ function ContractViewPalettesV2({ f, tarifs }) {
     sigRow: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginTop: "10px", ...noBreak },
     sigBox: { background: BG2, border: `1px solid ${BORDER}`, borderRadius: "4px", padding: "8px 12px" },
     sigLine: { borderTop: `1px solid ${GOLD}`, paddingTop: "4px", marginTop: "40px", fontSize: "9pt", color: "#5D6877" },
-    annexe: { marginTop: "28px", paddingTop: "18px", borderTop: `2px dashed ${BORDER}` },
+    annexe: { marginTop: "24px" }, // espace entre les feuilles à l'écran
   };
 
   const P = ({ children, style }) => <p style={{ ...c.p, ...style }}>{children}</p>;
@@ -645,7 +645,9 @@ function ContractViewPalettesV2({ f, tarifs }) {
   );
 
   return (
-    <div id="contrat-print" className="cadre-pages" style={c.wrap}>
+    <div id="contrat-print" className="contrat-feuilles">
+    {/* ── FEUILLE : CONTRAT ── */}
+    <div className="feuille" style={c.wrap}>
       <div style={c.h1}>CONTRAT-CADRE DE PRESTATION DE SERVICES</div>
       <div style={c.h1b}>SOUS-TRAITANCE À FAÇON</div>
       <p style={c.sous}>(Tri, réparation et fabrication de palettes en bois sur sites client)</p>
@@ -800,8 +802,10 @@ function ContractViewPalettesV2({ f, tarifs }) {
         <Signatures />
       </div>
 
+    </div>
+
       {/* ── ANNEXE 1 ── */}
-      <div className="saut-page" style={c.annexe}>
+      <div className="feuille saut-page" style={{ ...c.wrap, ...c.annexe }}>
         <div style={c.h1}>ANNEXE 1</div>
         <div style={c.h1b}>GRILLE TARIFAIRE DES PRESTATIONS</div>
         <hr style={c.divider} />
@@ -829,7 +833,7 @@ function ContractViewPalettesV2({ f, tarifs }) {
       </div>
 
       {/* ── ANNEXE 2 ── */}
-      <div className="saut-page" style={c.annexe}>
+      <div className="feuille saut-page" style={{ ...c.wrap, ...c.annexe }}>
         <div style={c.h1}>ANNEXE 2</div>
         <div style={c.h1b}>PLAN DE PRÉVENTION</div>
         <p style={c.sous}>(Articles R. 4511-1 et suivants du Code du travail)</p>
@@ -873,7 +877,7 @@ function ContractViewPalettesV2({ f, tarifs }) {
       </div>
 
       {/* ── ANNEXE 3 ── */}
-      <div className="saut-page" style={c.annexe}>
+      <div className="feuille saut-page" style={{ ...c.wrap, ...c.annexe }}>
         <div style={c.h1}>ANNEXE 3</div>
         <div style={c.h1b}>ATTESTATION DE NON-DÉPENDANCE ÉCONOMIQUE</div>
         <p style={c.sous}>(Article L. 8241-2 du Code du travail — Indépendance commerciale du Prestataire)</p>
@@ -1228,7 +1232,7 @@ export default function App() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: isContratView ? "#E6EAEF" : "linear-gradient(145deg,#F7F9FB,#EEF1F4)" }}>
+    <div className="app-racine" style={{ minHeight: "100vh", background: isContratView ? "#E6EAEF" : "linear-gradient(145deg,#F7F9FB,#EEF1F4)" }}>
       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet" />
 
       {/* ── ONGLETS PRINCIPAUX ── */}
@@ -1366,7 +1370,7 @@ export default function App() {
           )}
 
           {vuePalettes === "contrat" && contratPaletteActif && (
-            <div style={{ padding: "20px 16px 60px" }}>
+            <div className="zone-contrat" style={{ padding: "20px 16px 60px" }}>
               {contratPaletteActif.version === 2
                 ? <ContractViewPalettesV2 f={contratPaletteActif.f} tarifs={contratPaletteActif.tarifs} />
                 : <ContractViewPalettes f={contratPaletteActif.f} tarifs={contratPaletteActif.tarifs} />}
@@ -1515,7 +1519,7 @@ export default function App() {
           )}
 
           {vueChauffeurs === "contrat" && contratChauffeurActif && (
-            <div style={{ padding: "20px 16px 60px" }}>
+            <div className="zone-contrat" style={{ padding: "20px 16px 60px" }}>
               <ContractViewChauffeur f={contratChauffeurActif.f} tarifs={contratChauffeurActif.tarifs} />
             </div>
           )}
@@ -1554,7 +1558,8 @@ export default function App() {
         @media print {
           /* Nouveau modèle : chaque annexe commence sur une nouvelle page */
           /* Chaque page imprimée reçoit le même cadre : liseré bleu en haut, bordure en bas */
-          #contrat-print.cadre-pages {
+          #contrat-print.cadre-pages,
+          #contrat-print .feuille {
             -webkit-box-decoration-break: clone !important;
             box-decoration-break: clone !important;
             border: 1px solid #C5D3E0 !important;
@@ -1568,10 +1573,11 @@ export default function App() {
           #contrat-print .saut-page {
             break-before: page !important;
             page-break-before: always !important;
-            border-top: none !important;
             margin-top: 0 !important;
-            padding-top: 0 !important;
           }
+          /* Fond blanc autour des cadres à l'impression (contrats actuels uniquement) */
+          .app-racine:has(.cadre-pages, .feuille) { background: #fff !important; }
+          .app-racine:has(.cadre-pages, .feuille) .zone-contrat { padding: 0 !important; }
         }
         * { box-sizing: border-box; }
         input::placeholder { color: #bbb; }
