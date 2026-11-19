@@ -39,6 +39,43 @@ const EMPTY_PALETTES = {
   dateDebut: "", tribunal: "", dateSig: "",
 };
 
+// ── DONNÉES PALETTES — NOUVEAU MODÈLE (contrat-cadre à façon) ──
+// L'ancien modèle ci-dessus est conservé pour réafficher les contrats déjà signés.
+const TARIFS_DEFAUT_V2 = [
+  { libelle: "Réparation / reconditionnement palette Europe (80×120)", prix: "1,00", unite: "pièce" },
+  { libelle: "Réparation / reconditionnement palette Lourde (100×120)", prix: "0,80", unite: "pièce" },
+  { libelle: "Réparation / reconditionnement palette Demi-lourde", prix: "0,75", unite: "pièce" },
+  { libelle: "Réparation / reconditionnement palette Légère", prix: "0,70", unite: "pièce" },
+  { libelle: "Fabrication palette (démontage + sciage planches + assemblage)", prix: "1,40", unite: "pièce" },
+  { libelle: "Tri de palettes", prix: "140,00", unite: "jour" },
+];
+
+const EMPTY_PALETTES_V2 = {
+  prestNom: "", prestForme: "Société par Actions Simplifiée à associé unique (SASU)", prestCapital: "",
+  prestAdresse: "", prestCpVille: "", prestRcsVille: "", prestRcsNum: "", prestEuid: "",
+  prestCivilite: "M.", prestPrenom: "", prestNomFamille: "", prestQualite: "Président",
+  duree: "12", reconduction: "12", preavisRecon: "2", preavisBaisse: "1", delaiPaiement: "30",
+  tribunal: "La Roche-sur-Yon", site: "", dateDebut: "", dateSig: "",
+};
+
+const FORMES_JURIDIQUES = [
+  "Société par Actions Simplifiée à associé unique (SASU)",
+  "Société par Actions Simplifiée (SAS)",
+  "Entreprise Unipersonnelle à Responsabilité Limitée (EURL)",
+  "Société à Responsabilité Limitée (SARL)",
+  "Entreprise individuelle",
+];
+
+const UNITE_LABELS = { "pièce": "Palette", heure: "Heure", forfait: "Forfait", jour: "Forfait journalier" };
+
+const LETTRES = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze",
+  "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf", "vingt", "vingt et un", "vingt-deux", "vingt-trois", "vingt-quatre"];
+// "2" → "deux (2)"
+const enLettres = (n) => {
+  const i = parseInt(n, 10);
+  return LETTRES[i] ? `${LETTRES[i]} (${i})` : `${n}`;
+};
+
 // ── DONNÉES CHAUFFEURS ────────────────────────────────────────
 const TARIFS_CHAUFFEUR_DEFAUT = [
   { libelle: "Conduite véhicule PL/SPL", prix: "25,00", unite: "heure" },
@@ -91,11 +128,11 @@ const STORAGE_KEY_CHAUFFEURS = "contrats_chauffeurs";
 // ── STYLES COMMUNS ────────────────────────────────────────────
 const inputBase = (focus) => ({
   width: "100%", padding: "9px 13px", borderRadius: "8px",
-  border: `1.5px solid ${focus ? "#b8860b" : "#ddd0bb"}`,
-  background: focus ? "#fffdf7" : "#fdfaf5",
-  fontFamily: "'Crimson Pro',serif", fontSize: "15px", color: "#1a1008",
+  border: `1.5px solid ${focus ? "#2A84C1" : "#CBD4DD"}`,
+  background: focus ? "#FFFFFF" : "#F7F9FB",
+  fontFamily: "'Crimson Pro',serif", fontSize: "15px", color: "#1B2430",
   outline: "none", boxSizing: "border-box",
-  boxShadow: focus ? "0 0 0 3px rgba(184,134,11,.12)" : "none",
+  boxShadow: focus ? "0 0 0 3px rgba(42,132,193,.12)" : "none",
   transition: "border-color .2s, box-shadow .2s",
 });
 
@@ -107,12 +144,12 @@ function Field({ label, value, onChange, placeholder, hint, required, type = "te
       <label style={{
         display: "block", fontFamily: "'Playfair Display',serif",
         fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em",
-        textTransform: "uppercase", color: focus ? "#b8860b" : "#6b5a3e",
+        textTransform: "uppercase", color: focus ? "#2A84C1" : "#4A5563",
         marginBottom: "5px", transition: "color .2s",
       }}>
         {label}{required && <span style={{ color: "#c0392b" }}> *</span>}
       </label>
-      {hint && <p style={{ fontSize: "11px", color: "#9a8a72", margin: "-2px 0 5px", fontStyle: "italic" }}>{hint}</p>}
+      {hint && <p style={{ fontSize: "11px", color: "#8A94A2", margin: "-2px 0 5px", fontStyle: "italic" }}>{hint}</p>}
       <input type={type} value={value} onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
@@ -128,7 +165,7 @@ function NumField({ label, value, onChange, required, suffix = "mois" }) {
       <label style={{
         display: "block", fontFamily: "'Playfair Display',serif",
         fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em",
-        textTransform: "uppercase", color: focus ? "#b8860b" : "#6b5a3e",
+        textTransform: "uppercase", color: focus ? "#2A84C1" : "#4A5563",
         marginBottom: "5px", transition: "color .2s",
       }}>
         {label}{required && <span style={{ color: "#c0392b" }}> *</span>}
@@ -138,7 +175,7 @@ function NumField({ label, value, onChange, required, suffix = "mois" }) {
           onChange={e => onChange(e.target.value)}
           onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
           style={{ ...inputBase(focus), width: "90px", textAlign: "center", fontWeight: "600", fontSize: "17px" }} />
-        <span style={{ color: "#7a6a52", fontFamily: "'Crimson Pro',serif", fontSize: "15px" }}>{suffix}</span>
+        <span style={{ color: "#5D6877", fontFamily: "'Crimson Pro',serif", fontSize: "15px" }}>{suffix}</span>
       </div>
     </div>
   );
@@ -151,12 +188,12 @@ function DateField({ label, value, onChange, hint, required }) {
       <label style={{
         display: "block", fontFamily: "'Playfair Display',serif",
         fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em",
-        textTransform: "uppercase", color: focus ? "#b8860b" : "#6b5a3e",
+        textTransform: "uppercase", color: focus ? "#2A84C1" : "#4A5563",
         marginBottom: "5px", transition: "color .2s",
       }}>
         {label}{required && <span style={{ color: "#c0392b" }}> *</span>}
       </label>
-      {hint && <p style={{ fontSize: "11px", color: "#9a8a72", margin: "-2px 0 5px", fontStyle: "italic" }}>{hint}</p>}
+      {hint && <p style={{ fontSize: "11px", color: "#8A94A2", margin: "-2px 0 5px", fontStyle: "italic" }}>{hint}</p>}
       <input type="date" value={value} onChange={e => onChange(e.target.value)}
         onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
         style={inputBase(focus)} />
@@ -172,7 +209,7 @@ function SelectField({ label, value, onChange, options, required }) {
       <label style={{
         display: "block", fontFamily: "'Playfair Display',serif",
         fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em",
-        textTransform: "uppercase", color: focus ? "#b8860b" : "#6b5a3e",
+        textTransform: "uppercase", color: focus ? "#2A84C1" : "#4A5563",
         marginBottom: "5px", transition: "color .2s",
       }}>
         {label}{required && <span style={{ color: "#c0392b" }}> *</span>}
@@ -190,16 +227,16 @@ function Section({ num, title, children }) {
   return (
     <div style={{
       background: "#fff", borderRadius: "16px", padding: "28px 32px",
-      border: "1px solid #e8ddc8", boxShadow: "0 3px 18px rgba(44,26,0,.07)",
+      border: "1px solid #DCE3EA", boxShadow: "0 3px 18px rgba(27,36,48,.07)",
       marginBottom: "18px",
     }}>
       <h2 style={{
-        fontFamily: "'Playfair Display',serif", fontSize: "15px", color: "#b8860b",
-        margin: "0 0 22px", paddingBottom: "11px", borderBottom: "1px solid #f0e4cc",
+        fontFamily: "'Playfair Display',serif", fontSize: "15px", color: "#2A84C1",
+        margin: "0 0 22px", paddingBottom: "11px", borderBottom: "1px solid #E3EFF8",
         display: "flex", alignItems: "center", gap: "9px",
       }}>
         <span style={{
-          background: "#b8860b", color: "#fff", borderRadius: "50%",
+          background: "#2A84C1", color: "#fff", borderRadius: "50%",
           width: "24px", height: "24px", display: "inline-flex",
           alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 700, flexShrink: 0,
         }}>{num}</span>
@@ -210,18 +247,18 @@ function Section({ num, title, children }) {
   );
 }
 
-function ClientBox() {
+function ClientBox({ qualite = "gérant" }) {
   return (
     <div style={{
-      background: "#f7f2e8", borderRadius: "10px", padding: "13px 18px",
-      border: "1px dashed #c8b888", marginBottom: "26px",
-      fontFamily: "'Crimson Pro',serif", fontSize: "14px", color: "#6b5a3e",
+      background: "#F1F5F9", borderRadius: "10px", padding: "13px 18px",
+      border: "1px dashed #A9BFD3", marginBottom: "26px",
+      fontFamily: "'Crimson Pro',serif", fontSize: "14px", color: "#4A5563",
     }}>
       <strong style={{ fontFamily: "'Playfair Display',serif", fontSize: "11px", letterSpacing: ".07em", textTransform: "uppercase", display: "block", marginBottom: "3px" }}>
         Client — inchangé dans ce modèle
       </strong>
       SAS OUEST PALETTES — Le Four Lutton, 85140 La Merlatière<br />
-      RCS 339 804 684 — Représenté par M. JEAUD Patrice, gérant
+      RCS 339 804 684 — Représenté par M. JEAUD Patrice, {qualite}
     </div>
   );
 }
@@ -230,11 +267,11 @@ function BtnGenerer({ ok, onClick }) {
   return (
     <button onClick={() => ok && onClick()} style={{
       width: "100%", padding: "15px",
-      background: ok ? "#b8860b" : "#c8b888",
+      background: ok ? "#2A84C1" : "#A9BFD3",
       color: "#fff", border: "none", borderRadius: "10px",
       fontFamily: "'Playfair Display',serif", fontSize: "16px", fontWeight: 700,
       cursor: ok ? "pointer" : "not-allowed", letterSpacing: ".04em",
-      boxShadow: ok ? "0 4px 18px rgba(184,134,11,.35)" : "none",
+      boxShadow: ok ? "0 4px 18px rgba(42,132,193,.35)" : "none",
       transition: "all .2s",
     }}>
       {ok ? "Générer et sauvegarder →" : "Complétez les champs obligatoires *"}
@@ -243,68 +280,75 @@ function BtnGenerer({ ok, onClick }) {
 }
 
 // ── LISTE CONTRATS (générique) ────────────────────────────────
-function ListeContrats({ titre, badge, sousTitre, icon, contrats, onOuvrir, onSupprimer, onNouveau }) {
+function ListeContrats({ titre, badge, sousTitre, icon, contrats, onOuvrir, onSupprimer, onNouveau, etiquette }) {
   return (
     <div style={{ maxWidth: "700px", margin: "0 auto", padding: "44px 16px 80px" }}>
       <div style={{ textAlign: "center", marginBottom: "36px" }}>
         <div style={{
-          display: "inline-block", background: "#b8860b", color: "#fff",
+          display: "inline-block", background: "#2A84C1", color: "#fff",
           fontFamily: "'Playfair Display',serif", fontSize: "10px", fontWeight: 700,
           letterSpacing: ".2em", textTransform: "uppercase",
           padding: "3px 14px", borderRadius: "20px", marginBottom: "14px",
         }}>{badge}</div>
-        <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "28px", fontWeight: 700, color: "#1a1008", margin: "0 0 7px" }}>{titre}</h1>
-        <p style={{ color: "#7a6a52", fontSize: "15px", margin: 0, fontFamily: "'Crimson Pro',serif" }}>
+        <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "28px", fontWeight: 700, color: "#1B2430", margin: "0 0 7px" }}>{titre}</h1>
+        <p style={{ color: "#5D6877", fontSize: "15px", margin: 0, fontFamily: "'Crimson Pro',serif" }}>
           {contrats.length} contrat{contrats.length > 1 ? "s" : ""} sauvegardé{contrats.length > 1 ? "s" : ""}
         </p>
       </div>
 
       <button onClick={onNouveau} style={{
         width: "100%", padding: "14px",
-        background: "#b8860b", color: "#fff", border: "none", borderRadius: "10px",
+        background: "#2A84C1", color: "#fff", border: "none", borderRadius: "10px",
         fontFamily: "'Playfair Display',serif", fontSize: "15px", fontWeight: 700,
         cursor: "pointer", letterSpacing: ".04em", marginBottom: "24px",
-        boxShadow: "0 4px 18px rgba(184,134,11,.35)",
+        boxShadow: "0 4px 18px rgba(42,132,193,.35)",
       }}>+ Nouveau contrat</button>
 
       {contrats.length === 0 && (
         <div style={{
           textAlign: "center", padding: "48px 24px",
-          background: "#fff", borderRadius: "16px", border: "1px solid #e8ddc8",
-          color: "#9a8a72", fontFamily: "'Crimson Pro',serif", fontSize: "16px",
+          background: "#fff", borderRadius: "16px", border: "1px solid #DCE3EA",
+          color: "#8A94A2", fontFamily: "'Crimson Pro',serif", fontSize: "16px",
         }}>Aucun contrat sauvegardé pour le moment.</div>
       )}
 
       {contrats.map(c => (
         <div key={c.id} style={{
           background: "#fff", borderRadius: "12px", padding: "18px 22px",
-          border: "1px solid #e8ddc8", boxShadow: "0 2px 12px rgba(44,26,0,.06)",
+          border: "1px solid #DCE3EA", boxShadow: "0 2px 12px rgba(27,36,48,.06)",
           marginBottom: "12px", display: "flex", alignItems: "center", gap: "16px",
         }}>
           <div style={{
-            background: "#f7f0e3", borderRadius: "50%", width: "44px", height: "44px",
+            background: "#EAF3FA", borderRadius: "50%", width: "44px", height: "44px",
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: "20px", flexShrink: 0,
           }}>{icon}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: "15px", color: "#1a1008", marginBottom: "3px" }}>
+            <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: "15px", color: "#1B2430", marginBottom: "3px" }}>
               {c.nom || "Sans nom"}
+              {etiquette && etiquette(c) && (
+                <span style={{
+                  marginLeft: "8px", padding: "1px 8px", borderRadius: "10px",
+                  background: "#E3EFF8", color: "#5D6877", fontFamily: "'Crimson Pro',serif",
+                  fontSize: "12px", fontWeight: 400, verticalAlign: "middle",
+                }}>{etiquette(c)}</span>
+              )}
             </div>
-            <div style={{ fontFamily: "'Crimson Pro',serif", fontSize: "13px", color: "#7a6a52" }}>
+            <div style={{ fontFamily: "'Crimson Pro',serif", fontSize: "13px", color: "#5D6877" }}>
               Signé le {c.dateSig} · Début : {c.dateDebut}
             </div>
-            <div style={{ fontFamily: "'Crimson Pro',serif", fontSize: "12px", color: "#b8860b", marginTop: "2px" }}>
+            <div style={{ fontFamily: "'Crimson Pro',serif", fontSize: "12px", color: "#2A84C1", marginTop: "2px" }}>
               Sauvegardé le {new Date(c.savedAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
             </div>
           </div>
           <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
             <button onClick={() => onOuvrir(c)} style={{
-              padding: "7px 14px", background: "#b8860b", border: "none", color: "#fff",
+              padding: "7px 14px", background: "#2A84C1", border: "none", color: "#fff",
               borderRadius: "7px", cursor: "pointer", fontSize: "13px",
               fontFamily: "'Playfair Display',serif", fontWeight: 700,
             }}>Ouvrir</button>
             <button onClick={() => onSupprimer(c.id)} style={{
-              padding: "7px 10px", background: "transparent", border: "1px solid #e8ddc8",
+              padding: "7px 10px", background: "transparent", border: "1px solid #DCE3EA",
               color: "#c0392b", borderRadius: "7px", cursor: "pointer", fontSize: "16px",
             }}>🗑</button>
           </div>
@@ -324,9 +368,9 @@ function TarifsEditor({ num, tarifs, setTarifs }) {
   const cellInput = (val, onChange, width, align = "left") => (
     <input value={val} onChange={e => onChange(e.target.value)}
       style={{
-        width, border: "1px solid #ddd0bb", borderRadius: "5px",
+        width, border: "1px solid #CBD4DD", borderRadius: "5px",
         padding: "4px 7px", fontFamily: "'Crimson Pro',serif",
-        fontSize: "13px", background: "#fdfaf5", outline: "none",
+        fontSize: "13px", background: "#F7F9FB", outline: "none",
         textAlign: align, boxSizing: "border-box",
       }} />
   );
@@ -336,32 +380,33 @@ function TarifsEditor({ num, tarifs, setTarifs }) {
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
           <thead>
-            <tr style={{ background: "#f0e8d8" }}>
+            <tr style={{ background: "#E3EFF8" }}>
               {["Libellé de la prestation", "Prix HT (€)", "Unité", ""].map(h => (
                 <th key={h} style={{
                   padding: "8px 10px", textAlign: "left",
                   fontFamily: "'Playfair Display',serif", fontSize: "11px",
                   fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
-                  color: "#6b5a3e", borderBottom: "2px solid #d1c4b0", whiteSpace: "nowrap",
+                  color: "#4A5563", borderBottom: "2px solid #C5D3E0", whiteSpace: "nowrap",
                 }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {tarifs.map((t, i) => (
-              <tr key={i} style={{ background: i % 2 === 0 ? "#fdfaf5" : "#fff" }}>
+              <tr key={i} style={{ background: i % 2 === 0 ? "#F7F9FB" : "#fff" }}>
                 <td style={{ padding: "5px 8px" }}>{cellInput(t.libelle, v => update(i, "libelle", v), "100%")}</td>
                 <td style={{ padding: "5px 8px", width: "110px" }}>{cellInput(t.prix, v => update(i, "prix", v), "90px", "right")}</td>
                 <td style={{ padding: "5px 8px", width: "120px" }}>
                   <select value={t.unite} onChange={e => update(i, "unite", e.target.value)}
                     style={{
-                      border: "1px solid #ddd0bb", borderRadius: "5px",
+                      border: "1px solid #CBD4DD", borderRadius: "5px",
                       padding: "4px 7px", fontFamily: "'Crimson Pro',serif",
-                      fontSize: "13px", background: "#fdfaf5", outline: "none", width: "100%",
+                      fontSize: "13px", background: "#F7F9FB", outline: "none", width: "100%",
                     }}>
                     <option value="pièce">/ pièce</option>
                     <option value="heure">/ heure</option>
                     <option value="forfait">forfait</option>
+                    <option value="jour">forfait / jour</option>
                   </select>
                 </td>
                 <td style={{ padding: "5px 8px", width: "36px", textAlign: "center" }}>
@@ -377,8 +422,8 @@ function TarifsEditor({ num, tarifs, setTarifs }) {
       </div>
       <button onClick={add} style={{
         marginTop: "12px", padding: "7px 16px",
-        background: "transparent", border: "1px solid #b8860b",
-        color: "#b8860b", borderRadius: "6px", cursor: "pointer",
+        background: "transparent", border: "1px solid #2A84C1",
+        color: "#2A84C1", borderRadius: "6px", cursor: "pointer",
         fontFamily: "'Playfair Display',serif", fontSize: "12px",
         fontWeight: 700, letterSpacing: "0.06em",
       }}>+ Ajouter une ligne</button>
@@ -536,6 +581,315 @@ function ContractViewPalettes({ f, tarifs }) {
   );
 }
 
+// ── NOUVEAU MODÈLE : CONTRAT-CADRE À FAÇON (une colonne, plusieurs pages, 3 annexes) ──
+function ContractViewPalettesV2({ f, tarifs }) {
+  const rep = `${f.prestCivilite} ${f.prestPrenom ? f.prestPrenom + " " : ""}${(f.prestNomFamille || "").toUpperCase()}`.trim();
+  const villePrest = (f.prestCpVille || "").replace(/^\d{5}\s*/, "");
+  const immat = f.prestRcsVille
+    ? <>Immatriculée au RCS de {f.prestRcsVille} sous le n° {f.prestRcsNum}</>
+    : <>Immatriculée sous le n° SIRET {f.prestRcsNum}</>;
+  const capital = f.prestCapital ? <> au capital de {f.prestCapital} €</> : null;
+  const BLANC = "_____ / _____ / 20_____";
+
+  const BG2 = "#EAF3FA", GOLD = "#2A84C1", BORDER = "#C5D3E0";
+  const noBreak = { breakInside: "avoid", pageBreakInside: "avoid" };
+
+  const c = {
+    wrap: { fontFamily: "'Times New Roman',Times,serif", fontSize: "10pt", color: "#1B2430", lineHeight: 1.4, maxWidth: "800px", margin: "0 auto", background: "#fff", padding: "28px 44px", border: `1px solid ${BORDER}`, borderTop: `4px solid ${GOLD}` },
+    h1: { fontSize: "13pt", fontWeight: "bold", textAlign: "center", margin: "0 0 2px", letterSpacing: ".05em" },
+    h1b: { fontSize: "11pt", fontWeight: "bold", textAlign: "center", margin: "0 0 2px" },
+    sous: { fontStyle: "italic", textAlign: "center", margin: "0 0 4px" },
+    divider: { height: "2px", background: `linear-gradient(to right, transparent, ${GOLD}, transparent)`, margin: "8px 0 10px", border: "none" },
+    partyBox: { background: BG2, border: `1px solid ${BORDER}`, borderRadius: "4px", padding: "8px 12px", margin: "4px 0 10px", ...noBreak },
+    partyLabel: { fontWeight: "bold", fontSize: "8.5pt", color: GOLD, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: "3px", display: "block" },
+    titre: { fontWeight: "bold", textAlign: "center", margin: "12px 0 4px", letterSpacing: ".04em" },
+    at: { fontWeight: "bold", textDecoration: "underline", display: "block", marginTop: "12px", marginBottom: "3px", breakAfter: "avoid", pageBreakAfter: "avoid" },
+    sat: { fontWeight: "bold", display: "block", marginTop: "6px", marginBottom: "2px", breakAfter: "avoid", pageBreakAfter: "avoid" },
+    p: { margin: "0 0 5px", textAlign: "justify" },
+    ul: { paddingLeft: "18px", margin: "3px 0 6px" },
+    tt: { width: "100%", borderCollapse: "collapse", fontSize: "9.5pt", margin: "6px 0 10px" },
+    th: { border: `1px solid ${BORDER}`, padding: "4px 7px", background: BG2, fontWeight: "bold", textAlign: "left", color: "#1B4F73" },
+    td: { border: `1px solid ${BORDER}`, padding: "3px 7px", verticalAlign: "top" },
+    sigRow: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginTop: "10px", ...noBreak },
+    sigBox: { background: BG2, border: `1px solid ${BORDER}`, borderRadius: "4px", padding: "8px 12px" },
+    sigLine: { borderTop: `1px solid ${GOLD}`, paddingTop: "4px", marginTop: "40px", fontSize: "9pt", color: "#5D6877" },
+    annexe: { marginTop: "28px", paddingTop: "18px", borderTop: `2px dashed ${BORDER}` },
+  };
+
+  const P = ({ children, style }) => <p style={{ ...c.p, ...style }}>{children}</p>;
+  const Signatures = ({ client = "Pour le Client — SAS OUEST PALETTES", prest = `Pour le Prestataire — ${f.prestNom}` }) => (
+    <div style={c.sigRow} className="sig-box-print">
+      <div style={c.sigBox}>
+        <p style={{ margin: "0 0 2px", fontWeight: "bold" }}>{client}</p>
+        <p style={{ margin: 0 }}>M. Patrice JEAUD, Président</p>
+        <div style={c.sigLine}>Date et signature</div>
+      </div>
+      <div style={c.sigBox}>
+        <p style={{ margin: "0 0 2px", fontWeight: "bold" }}>{prest}</p>
+        <p style={{ margin: 0 }}>{rep}, {f.prestQualite}</p>
+        <div style={c.sigLine}>Date et signature</div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div id="contrat-print" style={c.wrap}>
+      <div style={c.h1}>CONTRAT-CADRE DE PRESTATION DE SERVICES</div>
+      <div style={c.h1b}>SOUS-TRAITANCE À FAÇON</div>
+      <p style={c.sous}>(Tri, réparation et fabrication de palettes en bois sur sites client)</p>
+      <hr style={c.divider} />
+
+      <P style={{ fontWeight: "bold" }}>ENTRE LES SOUSSIGNÉS :</P>
+
+      <div style={c.partyBox}>
+        <span style={c.partyLabel}>1. Le Client</span>
+        <p style={{ margin: 0 }}>
+          <strong>SAS OUEST PALETTES</strong><br />
+          Société par Actions Simplifiée au capital de 50 000 €<br />
+          Siège social : Le Four Lutton, 85140 La Merlatière<br />
+          Immatriculée au RCS de La Roche-sur-Yon sous le n° 339 804 684<br />
+          Représentée par M. Patrice JEAUD, en sa qualité de Président<br />
+          <em>(Ci-après désignée « le Client » ou « OUEST PALETTES »)</em>
+        </p>
+      </div>
+
+      <div style={c.partyBox}>
+        <span style={c.partyLabel}>2. Le Prestataire</span>
+        <p style={{ margin: 0 }}>
+          <strong>{f.prestNom}</strong><br />
+          {f.prestForme}{capital}<br />
+          Siège social : {f.prestAdresse}, {f.prestCpVille}<br />
+          {immat}<br />
+          {f.prestEuid && <>EUID : {f.prestEuid}<br /></>}
+          Représentée par {rep}, en sa qualité de {f.prestQualite}<br />
+          <em>(Ci-après désignée « le Prestataire »)</em>
+        </p>
+      </div>
+
+      <P style={{ fontStyle: "italic", textAlign: "center" }}>(Le Client et le Prestataire étant désignés ensemble « les Parties »)</P>
+
+      <div style={c.titre}>PRÉAMBULE</div>
+      <P>Le Client exploite plusieurs sites industriels spécialisés dans la fabrication, le tri, le reconditionnement et la gestion de palettes en bois, situés principalement en Vendée (85), Charente-Maritime (17) et Vienne (86).</P>
+      <P>Le Prestataire dispose d'un savoir-faire reconnu dans les opérations de tri, de réparation et de fabrication de palettes en bois. Il intervient auprès de plusieurs clients et exerce son activité en toute indépendance commerciale.</P>
+      <P>Le présent contrat est conclu dans le cadre d'un <strong>contrat d'entreprise à façon</strong> au sens de l'article L. 8241-2 du Code du travail : le Client fournit les matières premières (planches, plots, éléments de bois, clous et pointes) ainsi que les cloueurs pneumatiques mis à disposition via son fournisseur agréé ; le Prestataire apporte son savoir-faire, sa main-d'œuvre qualifiée, son organisation et ses scies sabres, pour transformer ces matières en palettes conformes aux spécifications du Client.</P>
+      <P>Les Parties déclarent expressément que le présent contrat exclut tout lien de subordination juridique entre le Client et le personnel du Prestataire, et respecte strictement les dispositions relatives à l'interdiction du prêt illicite de main-d'œuvre (art. L. 8241-1 C. trav.) et du délit de marchandage (art. L. 8231-1 C. trav.).</P>
+
+      <span style={c.at}>Article 1 : Objet du contrat et qualification juridique</span>
+      <span style={c.sat}>1.1. Objet</span>
+      <P>Le présent contrat-cadre définit les conditions juridiques, techniques et financières dans lesquelles le Prestataire s'engage à exécuter, pour le compte du Client, des prestations de :</P>
+      <ul style={c.ul}>
+        <li>Tri et contrôle qualité de palettes ;</li>
+        <li>Réparation et reconditionnement de palettes ;</li>
+        <li>Fabrication et assemblage de palettes (sciage des planches, clouage, montage).</li>
+      </ul>
+      <span style={c.sat}>1.2. Nature juridique — Contrat d'entreprise à façon</span>
+      <P>Conformément à l'article L. 8241-2 du Code du travail, le présent contrat est un contrat d'entreprise à façon : le Client fournit les matières premières et les cloueurs pneumatiques ; le Prestataire réalise les opérations de transformation en conservant la pleine maîtrise de l'organisation du travail et de l'encadrement de son personnel. Cette qualification exclut expressément toute requalification en prêt de main-d'œuvre illicite.</P>
+      <span style={c.sat}>1.3. Contrat-cadre et ordres de mission</span>
+      <P>Le présent contrat constitue un contrat-cadre. Chaque intervention sur un site est formalisée par un Ordre de Mission / Bon de Commande précisant le site concerné, la nature des tâches et les objectifs quantitatifs prévisionnels.</P>
+
+      <span style={c.at}>Article 2 : Fourniture des matières premières et des équipements</span>
+      <span style={c.sat}>2.1. Matières premières fournies par le Client</span>
+      <P>Dans le cadre du présent contrat à façon, le Client fournit à titre gratuit au Prestataire, sur chaque site d'intervention, l'ensemble des matières premières nécessaires à l'exécution des prestations, notamment :</P>
+      <ul style={c.ul}>
+        <li>Planches de bois (neuves ou de récupération) ;</li>
+        <li>Plots en bois ;</li>
+        <li>Clous et pointes de clouage ;</li>
+        <li>Tout autre élément constitutif de la palette (lambourdes, traverses…).</li>
+      </ul>
+      <P style={{ fontStyle: "italic" }}>La fourniture de ces matières premières par le Client est constitutive de la qualification de contrat à façon et ne constitue en aucun cas un indice de subordination.</P>
+      <span style={c.sat}>2.2. Cloueurs pneumatiques</span>
+      <P>Les cloueurs pneumatiques utilisés sur les sites sont mis à disposition par le fournisseur agréé du Client (BEA / Bostitch ou équivalent). Cette mise à disposition est réalisée à titre accessoire et ne modifie pas la qualification du présent contrat. Le Prestataire est responsable de la bonne utilisation de ces équipements par son personnel et en assure la garde au sens de l'article 1242 du Code civil pendant toute la durée de l'intervention.</P>
+      <span style={c.sat}>2.3. Équipements apportés par le Prestataire</span>
+      <P>Le Prestataire apporte et utilise ses propres scies sabres pour les opérations de sciage et de découpe des composants. Il est seul responsable de leur entretien, de leur conformité aux normes de sécurité et de la formation de son personnel à leur utilisation.</P>
+
+      <span style={c.at}>Article 3 : Sites d'exécution et organisation</span>
+      <span style={c.sat}>3.1. Sites d'intervention</span>
+      <P>Les prestations s'exécutent sur les différents dépôts et sites du Client situés notamment en Vendée (85), Charente-Maritime (17) et Vienne (86). Le site concerné par chaque intervention est précisé dans l'Ordre de Mission correspondant.</P>
+      <span style={c.sat}>3.2. Autonomie organisationnelle du Prestataire</span>
+      <P>Le Prestataire exécute ses prestations en toute indépendance et sans aucun lien de subordination avec le Client. Il détermine seul :</P>
+      <ul style={c.ul}>
+        <li>le nombre d'intervenants affectés à chaque mission ;</li>
+        <li>l'organisation des équipes, la répartition des tâches et les méthodes de travail ;</li>
+        <li>la gestion des pauses de son personnel.</li>
+      </ul>
+      <P><strong>Le Client n'exerce aucun pouvoir de direction, de surveillance ni de sanction sur le personnel du Prestataire.</strong></P>
+      <span style={c.sat}>3.3. Référent du Prestataire sur site</span>
+      <P>Le Prestataire désigne un référent parmi ses salariés, présent sur site lors de chaque intervention. Ce référent représente le Prestataire et est le seul interlocuteur opérationnel du Client sur site. Les décisions d'organisation, d'affectation et de discipline restent de la compétence exclusive de {rep}, {f.prestQualite} de {f.prestNom}.</P>
+      <P>Le Client s'interdit formellement de donner des directives, ordres ou remontrances directement aux intervenants du Prestataire. Toute remarque qualitative ou demande de correction est adressée exclusivement au référent ou à {rep}.</P>
+      <span style={c.sat}>3.4. Plages horaires d'accès aux sites</span>
+      <P>Pour des impératifs de sécurité et d'organisation des sites, les interventions se déroulent dans les plages d'ouverture des sites, du lundi au samedi, entre 6h00 et 18h00. Aucune intervention n'est autorisée les dimanches, jours fériés ou périodes de fermeture annuelle. Ces plages horaires constituent des contraintes d'accès au site et non un contrôle du temps de travail du personnel du Prestataire.</P>
+
+      <span style={c.at}>Article 4 : Sécurité et plan de prévention</span>
+      <span style={c.sat}>4.1. Plan de prévention</span>
+      <P>Préalablement à toute première intervention sur un site, un Plan de Prévention écrit est co-établi entre le Client (Entreprise Utilisatrice) et le Prestataire (Entreprise Intervenante), conformément aux articles R. 4511-1 et suivants du Code du travail. Le modèle figure en Annexe 2 du présent contrat.</P>
+      <span style={c.sat}>4.2. Équipements de Protection Individuelle (EPI)</span>
+      <P>Le Prestataire fournit obligatoirement à l'intégralité de ses intervenants les EPI adaptés aux risques du métier : chaussures de sécurité, gants anti-coupure, protections auditives, lunettes de protection, masque anti-poussière FFP2.</P>
+      <span style={c.sat}>4.3. Badgeage de sécurité</span>
+      <P>Un système de badgeage à l'entrée et à la sortie du site est utilisé par les intervenants du Prestataire, strictement et exclusivement à des fins de sécurité incendie et de décompte des présents en cas d'évacuation (art. L. 4121-1 C. trav.). Ces données ne servent en aucun cas à contrôler le temps de travail ni à calculer la rémunération du Prestataire.</P>
+      <span style={c.sat}>4.4. Notification préalable des intervenants</span>
+      <P>Le Prestataire s'engage à transmettre au Client, au moins 72 heures avant chaque intervention, la liste nominative des intervenants prévus, assortie d'une copie de leur pièce d'identité en cours de validité et, le cas échéant, de leur titre de séjour et autorisation de travail. Tout intervenant non déclaré préalablement se verra refuser l'accès au site.</P>
+
+      <span style={c.at}>Article 5 : Obligations du Prestataire — Devoir de vigilance</span>
+      <P>Conformément aux articles L. 8222-1 et R. 8222-1 du Code du travail, le Prestataire remet obligatoirement au Client, à la signature du présent contrat puis tous les six (6) mois jusqu'à son terme :</P>
+      <ul style={c.ul}>
+        <li>Un extrait Kbis datant de moins de 3 mois{f.prestRcsVille ? ` (délivré par le greffe du Tribunal de Commerce de ${f.prestRcsVille})` : ""} ;</li>
+        <li>Une attestation de vigilance URSSAF en cours de validité (délivrée via le portail urssaf.fr) ;</li>
+        <li>Une attestation de régularité fiscale (délivrée par la DGFiP) ;</li>
+        <li>Une attestation d'assurance Responsabilité Civile Professionnelle en cours de validité ;</li>
+        <li>La liste nominative des salariés étrangers soumis à autorisation de travail, ou une attestation sur l'honneur certifiant leur absence (art. D. 8254-2 C. trav.) ;</li>
+        <li>Une Déclaration Préalable À l'Embauche (DPAE) attestant de la régularité de la situation de chaque intervenant.</li>
+      </ul>
+      <P>À défaut de remise de ces documents dans les délais impartis, le Client se réserve le droit de suspendre les interventions et/ou de résilier le présent contrat pour faute, sans indemnité.</P>
+      <P>Le Prestataire garantit que l'ensemble de ses intervenants est régulièrement déclaré et en situation légale au regard du droit du travail français. Il s'engage à respecter l'intégralité de ses obligations sociales, fiscales et en matière de droit du travail, notamment les dispositions relatives à la durée du travail, au SMIC et aux conventions collectives applicables.</P>
+
+      <span style={c.at}>Article 6 : Tarification et facturation</span>
+      <span style={c.sat}>6.1. Rémunération au résultat</span>
+      <P>La prestation est rémunérée exclusivement sur la base de tarifs unitaires par palette traitée ou d'un forfait journalier, conformément au barème figurant en Annexe 1 du présent contrat. La rémunération est liée au résultat produit et non au temps passé.</P>
+      <P>Ces tarifs sont fermes pour la durée initiale du contrat. Ils pourront être révisés annuellement par avenant signé des deux Parties, sur demande écrite formulée au moins 2 mois avant l'échéance annuelle.</P>
+      <span style={c.sat}>6.2. Relevé quotidien contradictoire</span>
+      <P>À la fin de chaque journée de travail, un relevé quotidien indiquant le nombre et le type de palettes traitées est établi en double exemplaire et signé contradictoirement par le référent du Prestataire et le responsable de site du Client. Ce relevé constitue la pièce justificative de la facturation.</P>
+      <span style={c.sat}>6.3. Contrôle qualité et non-conformités</span>
+      <P>Les palettes réparées ou fabriquées doivent être conformes aux standards du Client. Les pièces non conformes sont rejetées, déduites du relevé du jour et remises en conformité par le Prestataire à ses frais, sans supplément de prix.</P>
+      <span style={c.sat}>6.4. Facturation et conditions de règlement</span>
+      <P>Le Prestataire adresse une facture mensuelle récapitulative basée sur les relevés quotidiens validés. Le règlement s'effectue par virement bancaire dans un délai de {f.delaiPaiement} jours à compter de la date de réception de la facture. Tout retard de paiement entraîne de plein droit l'application d'intérêts de retard au taux légal majoré de 5 points, ainsi qu'une indemnité forfaitaire de recouvrement de 40 € (art. L. 441-10 C. com.).</P>
+
+      <span style={c.at}>Article 7 : Durée, tacite reconduction et résiliation</span>
+      <span style={c.sat}>7.1. Durée</span>
+      <P>Le présent contrat est conclu pour une durée initiale de {f.duree} mois à compter du {f.dateDebut}.</P>
+      <span style={c.sat}>7.2. Tacite reconduction</span>
+      <P>Il se renouvelle par tacite reconduction pour des périodes successives de {f.reconduction} mois, sauf dénonciation par lettre recommandée avec accusé de réception, moyennant un préavis de {enLettres(f.preavisRecon)} mois avant l'échéance.</P>
+      <span style={c.sat}>7.3. Résiliation pour baisse d'activité</span>
+      <P>Chaque Partie peut résilier le contrat par anticipation, sans indemnité, sous réserve d'un préavis de {enLettres(f.preavisBaisse)} mois notifié par LRAR, en cas de baisse significative et durable de l'activité du Client rendant l'exécution des prestations sans objet.</P>
+      <span style={c.sat}>7.4. Résiliation pour faute</span>
+      <P>En cas de manquement grave aux obligations contractuelles ou légales (défaut de vigilance, travail dissimulé, non-remise des documents obligatoires, défaut d'assurance), le contrat pourra être résilié de plein droit 15 jours après l'envoi d'une mise en demeure par LRAR restée sans effet.</P>
+
+      <span style={c.at}>Article 8 : Responsabilité et assurance</span>
+      <P>Le Prestataire est seul responsable des dommages matériels ou corporels causés par ses salariés ou son matériel lors de l'exécution des prestations. Il souscrit et maintient à ses frais une assurance Responsabilité Civile Professionnelle couvrant l'ensemble de ses risques, et en justifie auprès du Client à première demande.</P>
+      <P>En cas d'accident du travail survenu à un salarié du Prestataire sur un site du Client, le Prestataire en informe immédiatement le Client et reste seul responsable des démarches auprès de la CPAM et de l'inspection du travail.</P>
+
+      <span style={c.at}>Article 9 : Non-exclusivité et autonomie commerciale</span>
+      <P>Le présent contrat ne confère aucune exclusivité au Prestataire. Le Client demeure libre de faire appel à d'autres prestataires. Réciproquement, le Prestataire est libre de travailler pour d'autres clients, ce qui est constitutif de son indépendance commerciale. Le Prestataire certifie, conformément à l'Annexe 3, que le chiffre d'affaires réalisé avec le Client ne dépasse pas 70 % de son chiffre d'affaires annuel total.</P>
+
+      <span style={c.at}>Article 10 : Confidentialité</span>
+      <P>Chaque Partie s'engage à garder strictement confidentielles toutes les informations techniques, commerciales et financières de l'autre Partie dont elle aurait eu connaissance dans le cadre de l'exécution du présent contrat. Cette obligation de confidentialité survit à l'expiration ou à la résiliation du contrat pendant une durée de trois (3) ans.</P>
+
+      <span style={c.at}>Article 11 : Droit applicable et juridiction compétente</span>
+      <P>Le présent contrat est soumis au droit français. Tout litige relatif à sa validité, son interprétation ou son exécution, non résolu à l'amiable dans un délai de 30 jours, sera porté devant le Tribunal de Commerce de {f.tribunal}.</P>
+
+      <div style={noBreak}>
+        <div style={c.titre}>SIGNATURES DES PARTIES</div>
+        <hr style={c.divider} />
+        <P style={{ fontStyle: "italic", textAlign: "left" }}>Fait à La Merlatière, le <strong>{f.dateSig}</strong>, en deux (2) exemplaires originaux.</P>
+        <P style={{ color: "#5D6877", textAlign: "left" }}>(Faire précéder la signature de la mention manuscrite « Lu et approuvé. Bon pour accord »)</P>
+        <Signatures />
+      </div>
+
+      {/* ── ANNEXE 1 ── */}
+      <div className="saut-page" style={c.annexe}>
+        <div style={c.h1}>ANNEXE 1</div>
+        <div style={c.h1b}>GRILLE TARIFAIRE DES PRESTATIONS</div>
+        <hr style={c.divider} />
+        <P>La présente annexe fixe les tarifs unitaires applicables aux prestations réalisées par {f.prestNom} pour le compte de SAS OUEST PALETTES. La rémunération est liée au résultat produit (nombre de palettes traitées) et non au temps de présence sur site.</P>
+        <table style={c.tt}>
+          <thead>
+            <tr>
+              <th style={c.th}>Désignation de la prestation</th>
+              <th style={{ ...c.th, width: "130px" }}>Unité</th>
+              <th style={{ ...c.th, textAlign: "right", width: "90px" }}>Tarif HT (€)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tarifs.map((t, i) => (
+              <tr key={i} style={{ background: i % 2 ? "#F7F9FB" : "#fff" }}>
+                <td style={c.td}>{t.libelle}</td>
+                <td style={c.td}>{UNITE_LABELS[t.unite] || t.unite}</td>
+                <td style={{ ...c.td, textAlign: "right", fontWeight: "bold" }}>{t.prix} €</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <P><strong>Note :</strong> Les tarifs ci-dessus sont fermes pour la durée initiale du contrat ({f.duree} mois). Toute révision fait l'objet d'un avenant écrit signé des deux Parties.</P>
+        <Signatures client="Pour OUEST PALETTES :" prest={`Pour ${f.prestNom} :`} />
+      </div>
+
+      {/* ── ANNEXE 2 ── */}
+      <div className="saut-page" style={c.annexe}>
+        <div style={c.h1}>ANNEXE 2</div>
+        <div style={c.h1b}>PLAN DE PRÉVENTION</div>
+        <p style={c.sous}>(Articles R. 4511-1 et suivants du Code du travail)</p>
+        <hr style={c.divider} />
+        <P style={{ textAlign: "left" }}><strong>Entreprise Utilisatrice :</strong> SAS OUEST PALETTES — Site de : {f.site || "_______________________________"}</P>
+        <P style={{ textAlign: "left" }}><strong>Entreprise Intervenante :</strong> {f.prestNom} — {rep}, {f.prestQualite}</P>
+        <table style={c.tt}>
+          <thead>
+            <tr>
+              <th style={{ ...c.th, width: "26%" }}>Risque identifié</th>
+              <th style={c.th}>Mesures de prévention obligatoires</th>
+              <th style={{ ...c.th, width: "30%" }}>EPI requis</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ["Circulation chariots élévateurs", "Respect strict des voies piétons. Interdiction de circuler sous charge suspendue.", "Gilet haute visibilité, chaussures de sécurité"],
+              ["Bruit (cloueurs, scies sabres)", "Limitation des expositions directes.", "Casque anti-bruit ou bouchons moulés"],
+              ["Coupures & projections (bois, lames)", "Utilisation conforme des scies, carters en place.", "Gants anti-coupure, lunettes de protection"],
+              ["Risque pneumatique (cloueurs)", "Vérification tuyaux d'air, interdiction de pointer les cloueurs vers des personnes.", "Lunettes de sécurité, chaussures renforcées"],
+              ["Poussières de bois", "Aspiration aux postes si possible.", "Masque FFP2, gants de manutention"],
+              ["Port de charges lourdes", "Postures ergonomiques, aide mécanique si disponible.", "Gants de manutention, chaussures de sécurité"],
+            ].map((r, i) => (
+              <tr key={i} style={{ background: i % 2 ? "#F7F9FB" : "#fff" }}>
+                <td style={{ ...c.td, fontWeight: "bold" }}>{r[0]}</td>
+                <td style={c.td}>{r[1]}</td>
+                <td style={c.td}>{r[2]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <span style={c.sat}>Consignes d'urgence et sécurité incendie :</span>
+        <ul style={c.ul}>
+          <li>Repérage obligatoire dès le premier jour de l'emplacement des extincteurs et déclencheurs d'alarme ;</li>
+          <li>Identification des voies de dégagement et issues de secours, qui doivent rester libres de tout encombrement ;</li>
+          <li>Prise de connaissance du point de rassemblement extérieur ;</li>
+          <li>En cas d'accident ou d'incendie : prévenir immédiatement le responsable de site Ouest Palettes.</li>
+        </ul>
+        <span style={c.sat}>Signatures du Plan de Prévention :</span>
+        <Signatures client="Pour OUEST PALETTES :" prest={`Pour ${f.prestNom} :`} />
+      </div>
+
+      {/* ── ANNEXE 3 ── */}
+      <div className="saut-page" style={c.annexe}>
+        <div style={c.h1}>ANNEXE 3</div>
+        <div style={c.h1b}>ATTESTATION DE NON-DÉPENDANCE ÉCONOMIQUE</div>
+        <p style={c.sous}>(Article L. 8241-2 du Code du travail — Indépendance commerciale du Prestataire)</p>
+        <hr style={c.divider} />
+        <P>Je soussigné,</P>
+        <P><strong>{rep}</strong></P>
+        <P style={{ textAlign: "left" }}>
+          Agissant en qualité de {f.prestQualite} de la société {f.prestNom}<br />
+          {f.prestForme}{capital}<br />
+          {immat}<br />
+          Siège social : {f.prestAdresse}, {f.prestCpVille}
+        </P>
+        <P style={{ marginTop: "10px" }}><strong>ATTESTE SUR L'HONNEUR :</strong></P>
+        <P>1°) Que l'activité de {f.prestNom} est exercée auprès de plusieurs clients distincts, en totale indépendance commerciale, et ne se limite pas exclusivement à SAS OUEST PALETTES.</P>
+        <P>2°) Que le chiffre d'affaires réalisé avec SAS OUEST PALETTES ne dépasse pas, et n'a pas vocation à dépasser, <strong>70 % (soixante-dix pour cent)</strong> du chiffre d'affaires annuel total de {f.prestNom}, toutes activités confondues.</P>
+        <P>3°) Que {f.prestNom} dispose d'une clientèle propre et intervient pour d'autres donneurs d'ordre dans le cadre de son activité de prestation de services.</P>
+        <P>4°) Que la présente attestation sera actualisée et remise au Client chaque année à la date anniversaire du contrat, ou à toute demande expresse du Client.</P>
+        <P style={{ fontStyle: "italic" }}>La présente attestation est établie en vue de satisfaire aux exigences légales en matière d'indépendance du sous-traitant et de prévention du risque de requalification du présent contrat en prêt illicite de main-d'œuvre ou en contrat de travail.</P>
+        <P>Je certifie sur l'honneur l'exactitude des informations ci-dessus, étant informé que toute fausse déclaration m'exposerait aux sanctions prévues à l'article 441-1 du Code pénal.</P>
+        <div style={noBreak}>
+          <P style={{ marginTop: "10px", textAlign: "left" }}>Fait à {villePrest || "_______________"}, le {BLANC}</P>
+          <P style={{ textAlign: "left" }}>Signature de {rep}, {f.prestQualite} de {f.prestNom} :</P>
+          <P style={{ fontStyle: "italic", color: "#5D6877", textAlign: "left" }}>(Précédée de la mention manuscrite « Certifié sincère et véritable »)</P>
+          <div style={{ ...c.sigBox, width: "50%", marginTop: "6px" }}>
+            <div style={c.sigLine}>Signature</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════
 // MODULE CHAUFFEURS
 // ═══════════════════════════════════════════════════════════════
@@ -545,10 +899,10 @@ function ContractViewChauffeur({ f, tarifs }) {
   const half = Math.ceil(tarifs.length / 2);
   const L = tarifs.slice(0, half), R = tarifs.slice(half);
 
-  const BG2 = "#f7f0e3", GOLD = "#b8860b", BORDER = "#d8c9a8";
+  const BG2 = "#EAF3FA", GOLD = "#2A84C1", BORDER = "#C5D3E0";
 
   const c = {
-    wrap: { fontFamily: "'Times New Roman',Times,serif", fontSize: "9.5pt", color: "#1a1008", lineHeight: 1.35, maxWidth: "800px", margin: "0 auto", background: "#fff", padding: "24px 36px", border: `1px solid ${BORDER}`, borderTop: `4px solid ${GOLD}` },
+    wrap: { fontFamily: "'Times New Roman',Times,serif", fontSize: "9.5pt", color: "#1B2430", lineHeight: 1.35, maxWidth: "800px", margin: "0 auto", background: "#fff", padding: "24px 36px", border: `1px solid ${BORDER}`, borderTop: `4px solid ${GOLD}` },
     h1: { fontSize: "12pt", fontWeight: "bold", textAlign: "center", marginBottom: "4px", textDecoration: "underline", letterSpacing: ".05em" },
     divider: { height: "2px", background: `linear-gradient(to right, transparent, ${GOLD}, transparent)`, margin: "8px 0 10px", border: "none" },
     partiesBox: { display: "grid", gridTemplateColumns: "1fr 1fr", background: BG2, border: `1px solid ${BORDER}`, borderRadius: "4px", marginBottom: "8px", overflow: "hidden" },
@@ -558,12 +912,12 @@ function ContractViewChauffeur({ f, tarifs }) {
     two: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "4px" },
     at: { fontWeight: "bold", textDecoration: "underline", display: "block", marginTop: "7px", marginBottom: "2px", breakAfter: "avoid", pageBreakAfter: "avoid" },
     tt: { width: "100%", borderCollapse: "collapse", fontSize: "8.5pt" },
-    th: { border: `1px solid ${BORDER}`, padding: "2px 5px", background: BG2, fontWeight: "bold", textAlign: "left", color: "#3a2a00" },
+    th: { border: `1px solid ${BORDER}`, padding: "2px 5px", background: BG2, fontWeight: "bold", textAlign: "left", color: "#1B4F73" },
     td: { border: `1px solid ${BORDER}`, padding: "1px 5px" },
     tdAlt: { border: `1px solid ${BORDER}`, padding: "1px 5px", background: "#fff" },
     sigRow: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginTop: "10px" },
     sigBox: { background: BG2, border: `1px solid ${BORDER}`, borderRadius: "4px", padding: "7px 10px" },
-    sigLine: { borderTop: `1px solid ${GOLD}`, paddingTop: "4px", marginTop: "26px", fontSize: "9pt", color: "#7a6a52" },
+    sigLine: { borderTop: `1px solid ${GOLD}`, paddingTop: "4px", marginTop: "26px", fontSize: "9pt", color: "#5D6877" },
   };
 
   const TarifTable = ({ rows }) => (
@@ -687,10 +1041,10 @@ function ContractViewChauffeur({ f, tarifs }) {
       </div>
 
       <hr style={c.divider} />
-      <p style={{ fontStyle: "italic", textAlign: "right", margin: "0 0 6px", fontSize: "10.5pt", color: "#3a2a00" }}>
+      <p style={{ fontStyle: "italic", textAlign: "right", margin: "0 0 6px", fontSize: "10.5pt", color: "#1B4F73" }}>
         Fait à La Merlatière, le {f.ch_dateSig}, en deux originaux dont un remis au Prestataire.
       </p>
-      <p style={{ fontSize: "10.5pt", color: "#7a6a52", marginBottom: "12px" }}>
+      <p style={{ fontSize: "10.5pt", color: "#5D6877", marginBottom: "12px" }}>
         (Faire précéder les signatures de la mention « Lu et approuvé. Bon pour accord »)
       </p>
       <div style={c.sigRow}>
@@ -718,8 +1072,8 @@ export default function App() {
 
   // ── STATE PALETTES ──
   const [vuePalettes, setVuePalettes] = useState("liste");
-  const [f, setF] = useState(EMPTY_PALETTES);
-  const [tarifs, setTarifs] = useState(TARIFS_DEFAUT);
+  const [f, setF] = useState(EMPTY_PALETTES_V2);
+  const [tarifs, setTarifs] = useState(TARIFS_DEFAUT_V2);
   const [contratsPalettes, setContratsPalettes] = useState([]);
   const [contratPaletteActif, setContratPaletteActif] = useState(null);
   const setFP = k => v => setF(s => ({ ...s, [k]: v }));
@@ -743,13 +1097,16 @@ export default function App() {
   }, []);
 
   // ── HELPERS PALETTES ──
-  const okPalettes = f.prestNom && f.prestAdresse && f.prestCpVille &&
-    f.prestSiret && f.prestNomFamille && f.dateDebut && f.tribunal && f.dateSig;
+  const okPalettes = f.prestNom && f.prestForme && f.prestAdresse && f.prestCpVille &&
+    f.prestRcsNum && f.prestNomFamille && f.prestQualite &&
+    f.duree && f.reconduction && f.preavisRecon && f.preavisBaisse && f.delaiPaiement &&
+    f.dateDebut && f.tribunal && f.dateSig;
 
   const sauvegarderPalette = () => {
     const c = {
       id: Date.now().toString(), savedAt: new Date().toISOString(),
       nom: f.prestNom, dateSig: f.dateSig, dateDebut: f.dateDebut,
+      version: 2, // nouveau modèle ; les contrats sans "version" sont ceux de l'ancien modèle
       f, tarifs,
     };
     const updated = [c, ...contratsPalettes];
@@ -815,23 +1172,23 @@ export default function App() {
 
   // ── STYLES BARRE ──
   const barreStyle = {
-    position: "sticky", top: 0, zIndex: 100, background: "#1a1008",
+    position: "sticky", top: 0, zIndex: 100, background: "#1B2430",
     padding: "10px 24px", display: "flex", alignItems: "center",
     boxShadow: "0 2px 12px rgba(0,0,0,.35)",
   };
   const btnBarreStyle = {
-    padding: "6px 14px", background: "transparent", border: "1px solid #b8860b55",
-    color: "#b8860b", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontFamily: "system-ui",
+    padding: "6px 14px", background: "transparent", border: "1px solid #7FBDE855",
+    color: "#7FBDE8", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontFamily: "system-ui",
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: isContratView ? "#ede6d8" : "linear-gradient(145deg,#faf6ef,#f0e6d0)" }}>
+    <div style={{ minHeight: "100vh", background: isContratView ? "#E6EAEF" : "linear-gradient(145deg,#F7F9FB,#EEF1F4)" }}>
       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet" />
 
       {/* ── ONGLETS PRINCIPAUX ── */}
       {!isContratView && !isFormulaireView && (
         <div id="no-print" style={{
-          display: "flex", background: "#1a1008", padding: "0 24px",
+          display: "flex", background: "#1B2430", padding: "0 24px",
           gap: "4px", alignItems: "flex-end",
           position: "sticky", top: 0, zIndex: 100,
           boxShadow: "0 2px 12px rgba(0,0,0,.35)",
@@ -845,8 +1202,8 @@ export default function App() {
               fontFamily: "'Playfair Display',serif", fontSize: "13px", fontWeight: 700,
               letterSpacing: ".04em", borderRadius: "8px 8px 0 0", transition: "all .2s",
               position: "relative", top: "1px",
-              background: onglet === tab.key ? "#f0e6d0" : "transparent",
-              color: onglet === tab.key ? "#1a1008" : "#b8860b",
+              background: onglet === tab.key ? "#EEF1F4" : "transparent",
+              color: onglet === tab.key ? "#1B2430" : "#7FBDE8",
             }}>{tab.label}</button>
           ))}
         </div>
@@ -855,7 +1212,7 @@ export default function App() {
       {/* ── BARRE CONTRAT ── */}
       {isContratView && (
         <div id="no-print" style={{ ...barreStyle, justifyContent: "space-between" }}>
-          <span style={{ fontFamily: "'Playfair Display',serif", color: "#b8860b", fontSize: "16px", fontWeight: 700 }}>
+          <span style={{ fontFamily: "'Playfair Display',serif", color: "#7FBDE8", fontSize: "16px", fontWeight: 700 }}>
             {nomContratActif || "Contrat"}
           </span>
           <div style={{ display: "flex", gap: "10px" }}>
@@ -864,7 +1221,7 @@ export default function App() {
               else setVueChauffeurs("liste");
             }} style={btnBarreStyle}>← Mes contrats</button>
             <button onClick={() => window.print()} style={{
-              padding: "7px 18px", background: "#b8860b", border: "none", color: "#fff",
+              padding: "7px 18px", background: "#2A84C1", border: "none", color: "#fff",
               borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontFamily: "system-ui", fontWeight: 600,
             }}>🖨️ Imprimer / PDF</button>
           </div>
@@ -878,7 +1235,7 @@ export default function App() {
             if (onglet === "palettes") setVuePalettes("liste");
             else setVueChauffeurs("liste");
           }} style={btnBarreStyle}>← Mes contrats</button>
-          <span style={{ fontFamily: "'Playfair Display',serif", color: "#b8860b", fontSize: "15px", fontWeight: 700 }}>
+          <span style={{ fontFamily: "'Playfair Display',serif", color: "#7FBDE8", fontSize: "15px", fontWeight: 700 }}>
             {onglet === "palettes" ? "Nouveau contrat prestataire" : "Nouveau contrat chauffeur"}
           </span>
         </div>
@@ -895,54 +1252,71 @@ export default function App() {
               contrats={contratsPalettes}
               onOuvrir={c => { setContratPaletteActif(c); setVuePalettes("contrat"); }}
               onSupprimer={supprimerPalette}
-              onNouveau={() => { setF(EMPTY_PALETTES); setTarifs(TARIFS_DEFAUT); setVuePalettes("formulaire"); }}
+              onNouveau={() => { setF(EMPTY_PALETTES_V2); setTarifs(TARIFS_DEFAUT_V2); setVuePalettes("formulaire"); }}
+              etiquette={c => c.version === 2 ? null : "Ancien modèle"}
             />
           )}
 
           {vuePalettes === "formulaire" && (
             <div style={{ maxWidth: "700px", margin: "0 auto", padding: "44px 16px 80px" }}>
               <div style={{ textAlign: "center", marginBottom: "40px" }}>
-                <div style={{ display: "inline-block", background: "#b8860b", color: "#fff", fontFamily: "'Playfair Display',serif", fontSize: "10px", fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase", padding: "3px 14px", borderRadius: "20px", marginBottom: "14px" }}>Générateur de contrat</div>
-                <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "30px", fontWeight: 700, color: "#1a1008", margin: "0 0 7px" }}>Prestation de services</h1>
-                <p style={{ color: "#7a6a52", fontSize: "15px", margin: 0, fontFamily: "'Crimson Pro',serif" }}>Remplissez les informations puis ajustez les tarifs si besoin</p>
+                <div style={{ display: "inline-block", background: "#2A84C1", color: "#fff", fontFamily: "'Playfair Display',serif", fontSize: "10px", fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase", padding: "3px 14px", borderRadius: "20px", marginBottom: "14px" }}>Générateur de contrat</div>
+                <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "30px", fontWeight: 700, color: "#1B2430", margin: "0 0 7px" }}>Prestation de services</h1>
+                <p style={{ color: "#5D6877", fontSize: "15px", margin: 0, fontFamily: "'Crimson Pro',serif" }}>Remplissez les informations puis ajustez les tarifs si besoin</p>
               </div>
 
               <Section num="1" title="Le Prestataire">
-                <Field label="Nom / Raison sociale" value={f.prestNom} onChange={setFP("prestNom")} placeholder="ex : EURL KM PALETTES" required />
-                <Field label="Adresse (rue)" value={f.prestAdresse} onChange={setFP("prestAdresse")} placeholder="ex : 3 rue Eric Tabarly" required />
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                  <Field label="Code postal et ville" value={f.prestCpVille} onChange={setFP("prestCpVille")} placeholder="ex : 85430 Nieul-le-Dolent" required />
-                  <Field label="Numéro SIRET" value={f.prestSiret} onChange={setFP("prestSiret")} placeholder="ex : 931 539 399 00028" hint="14 chiffres — vérifiez sur annuaire-entreprises.data.gouv.fr" required />
+                <Field label="Nom / Raison sociale" value={f.prestNom} onChange={setFP("prestNom")} placeholder="ex : KENEM PALETTES" required />
+                <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "12px" }}>
+                  <SelectField label="Forme juridique" value={f.prestForme} onChange={setFP("prestForme")} options={FORMES_JURIDIQUES} required />
+                  <Field label="Capital (€)" value={f.prestCapital} onChange={setFP("prestCapital")} placeholder="ex : 1 000" hint="Laisser vide pour une entreprise individuelle" />
                 </div>
+                <Field label="Adresse du siège (rue)" value={f.prestAdresse} onChange={setFP("prestAdresse")} placeholder="ex : 38 Allée des Sculpteurs" required />
+                <Field label="Code postal et ville" value={f.prestCpVille} onChange={setFP("prestCpVille")} placeholder="ex : 93390 Clichy-sous-Bois" required />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                  <Field label="Ville du RCS" value={f.prestRcsVille} onChange={setFP("prestRcsVille")} placeholder="ex : Bobigny" hint="Vide = le numéro sera présenté comme un SIRET" />
+                  <Field label="N° RCS (ou SIRET)" value={f.prestRcsNum} onChange={setFP("prestRcsNum")} placeholder="ex : 993 021 849" hint="Vérifiez sur annuaire-entreprises.data.gouv.fr" required />
+                </div>
+                <Field label="EUID" value={f.prestEuid} onChange={setFP("prestEuid")} placeholder="ex : FR9301.993021849" hint="Facultatif — figure sur le Kbis" />
                 <div style={{ display: "grid", gridTemplateColumns: "90px 1fr 1fr", gap: "12px" }}>
                   <SelectField label="Civilité" value={f.prestCivilite} onChange={setFP("prestCivilite")} options={["M.", "Mme"]} />
-                  <Field label="Nom de famille" value={f.prestNomFamille} onChange={setFP("prestNomFamille")} placeholder="ex : DABO" required />
-                  <Field label="Prénom" value={f.prestPrenom} onChange={setFP("prestPrenom")} placeholder="ex : Karfa" />
+                  <Field label="Prénom" value={f.prestPrenom} onChange={setFP("prestPrenom")} placeholder="ex : Mamadou" />
+                  <Field label="Nom de famille" value={f.prestNomFamille} onChange={setFP("prestNomFamille")} placeholder="ex : TRAORE" required />
                 </div>
+                <SelectField label="Qualité du représentant" value={f.prestQualite} onChange={setFP("prestQualite")} options={["Président", "Présidente", "Gérant", "Gérante", "Entrepreneur individuel"]} required />
               </Section>
 
               <Section num="2" title="Conditions du contrat">
-                <Field label="Objet de la prestation" value={f.objet} onChange={setFP("objet")} placeholder="ex : le tri et la réparation de palettes" required />
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                   <NumField label="Durée initiale" value={f.duree} onChange={setFP("duree")} required />
                   <NumField label="Reconduction tacite" value={f.reconduction} onChange={setFP("reconduction")} required />
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
-                  <Field label="Date de début" value={f.dateDebut} onChange={setFP("dateDebut")} placeholder="ex : 1er août 2024" required />
-                  <Field label="Tribunal compétent" value={f.tribunal} onChange={setFP("tribunal")} placeholder="ex : La Roche-sur-Yon" required />
-                  <Field label="Date de signature" value={f.dateSig} onChange={setFP("dateSig")} placeholder="ex : 1er août 2024" required />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                  <NumField label="Préavis avant l'échéance" value={f.preavisRecon} onChange={setFP("preavisRecon")} required />
+                  <NumField label="Préavis baisse d'activité" value={f.preavisBaisse} onChange={setFP("preavisBaisse")} required />
                 </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                  <NumField label="Délai de paiement" value={f.delaiPaiement} onChange={setFP("delaiPaiement")} suffix="jours" required />
+                  <Field label="Tribunal de Commerce" value={f.tribunal} onChange={setFP("tribunal")} placeholder="ex : La Roche-sur-Yon" required />
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                  <Field label="Date de début" value={f.dateDebut} onChange={setFP("dateDebut")} placeholder="ex : 1er décembre 2026" required />
+                  <Field label="Date de signature" value={f.dateSig} onChange={setFP("dateSig")} placeholder="ex : 20 novembre 2026" required />
+                </div>
+                <Field label="Site du plan de prévention (Annexe 2)" value={f.site} onChange={setFP("site")} placeholder="ex : Dissay" hint="Laisser vide pour obtenir une ligne à compléter à la main" />
               </Section>
 
               <TarifsEditor num="3" tarifs={tarifs} setTarifs={setTarifs} />
-              <ClientBox />
+              <ClientBox qualite="Président" />
               <BtnGenerer ok={okPalettes} onClick={genererPalette} />
             </div>
           )}
 
           {vuePalettes === "contrat" && contratPaletteActif && (
             <div style={{ padding: "20px 16px 60px" }}>
-              <ContractViewPalettes f={contratPaletteActif.f} tarifs={contratPaletteActif.tarifs} />
+              {contratPaletteActif.version === 2
+                ? <ContractViewPalettesV2 f={contratPaletteActif.f} tarifs={contratPaletteActif.tarifs} />
+                : <ContractViewPalettes f={contratPaletteActif.f} tarifs={contratPaletteActif.tarifs} />}
             </div>
           )}
         </>
@@ -966,9 +1340,9 @@ export default function App() {
           {vueChauffeurs === "formulaire" && (
             <div style={{ maxWidth: "700px", margin: "0 auto", padding: "44px 16px 80px" }}>
               <div style={{ textAlign: "center", marginBottom: "40px" }}>
-                <div style={{ display: "inline-block", background: "#b8860b", color: "#fff", fontFamily: "'Playfair Display',serif", fontSize: "10px", fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase", padding: "3px 14px", borderRadius: "20px", marginBottom: "14px" }}>Générateur de contrat</div>
-                <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "30px", fontWeight: 700, color: "#1a1008", margin: "0 0 7px" }}>Prestation de transport</h1>
-                <p style={{ color: "#7a6a52", fontSize: "15px", margin: 0, fontFamily: "'Crimson Pro',serif" }}>Remplissez les informations puis ajustez les tarifs si besoin</p>
+                <div style={{ display: "inline-block", background: "#2A84C1", color: "#fff", fontFamily: "'Playfair Display',serif", fontSize: "10px", fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase", padding: "3px 14px", borderRadius: "20px", marginBottom: "14px" }}>Générateur de contrat</div>
+                <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "30px", fontWeight: 700, color: "#1B2430", margin: "0 0 7px" }}>Prestation de transport</h1>
+                <p style={{ color: "#5D6877", fontSize: "15px", margin: 0, fontFamily: "'Crimson Pro',serif" }}>Remplissez les informations puis ajustez les tarifs si besoin</p>
               </div>
 
               <Section num="1" title="Le Chauffeur (Prestataire)">
@@ -1006,15 +1380,15 @@ export default function App() {
                   <Field label="Date de signature" value={fc.ch_dateSig} onChange={setFC("ch_dateSig")} placeholder="ex : 1er août 2025" required />
                 </div>
 
-                <div style={{ margin: "4px 0 18px", padding: "16px", background: "#fdfaf5", border: "1px solid #e8ddc8", borderRadius: "10px" }}>
+                <div style={{ margin: "4px 0 18px", padding: "16px", background: "#F7F9FB", border: "1px solid #DCE3EA", borderRadius: "10px" }}>
                   <label style={{
                     display: "block", fontFamily: "'Playfair Display',serif",
                     fontSize: "11px", fontWeight: 700, letterSpacing: "0.09em",
-                    textTransform: "uppercase", color: "#6b5a3e", marginBottom: "6px"
+                    textTransform: "uppercase", color: "#4A5563", marginBottom: "6px"
                   }}>
                     Jours travaillés — optionnel
                   </label>
-                  <p style={{ fontSize: "13px", color: "#7a6a52", margin: "0 0 12px", fontFamily: "'Crimson Pro',serif" }}>
+                  <p style={{ fontSize: "13px", color: "#5D6877", margin: "0 0 12px", fontFamily: "'Crimson Pro',serif" }}>
                     Cochez les jours habituels prévus au contrat. Vous pouvez laisser toutes les cases décochées.
                   </p>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "9px" }}>
@@ -1025,10 +1399,10 @@ export default function App() {
                         <label key={jour} style={{
                           display: "flex", alignItems: "center", gap: "8px",
                           padding: "9px 10px", borderRadius: "7px",
-                          border: `1px solid ${coche ? "#b8860b" : "#ddd0bb"}`,
-                          background: coche ? "#f7f0e3" : "#fff",
+                          border: `1px solid ${coche ? "#2A84C1" : "#CBD4DD"}`,
+                          background: coche ? "#EAF3FA" : "#fff",
                           cursor: "pointer", fontFamily: "'Crimson Pro',serif",
-                          fontSize: "14px", color: "#1a1008"
+                          fontSize: "14px", color: "#1B2430"
                         }}>
                           <input
                             type="checkbox"
@@ -1038,7 +1412,7 @@ export default function App() {
                                 ? joursSelectionnes.filter(j => j !== jour)
                                 : JOURS_SEMAINE.filter(j => joursSelectionnes.includes(j) || j === jour)
                             )}
-                            style={{ accentColor: "#b8860b" }}
+                            style={{ accentColor: "#2A84C1" }}
                           />
                           {jour}
                         </label>
@@ -1046,7 +1420,7 @@ export default function App() {
                     })}
                   </div>
                   {Array.isArray(fc.ch_joursTravailles) && fc.ch_joursTravailles.length > 0 && (
-                    <p style={{ fontSize: "13px", color: "#6b5a3e", margin: "12px 0 0", fontFamily: "'Crimson Pro',serif" }}>
+                    <p style={{ fontSize: "13px", color: "#4A5563", margin: "12px 0 0", fontFamily: "'Crimson Pro',serif" }}>
                       Sélection : <strong>{JOURS_SEMAINE.filter(jour => fc.ch_joursTravailles.includes(jour)).join(", ")}</strong>
                     </p>
                   )}
@@ -1074,7 +1448,7 @@ export default function App() {
                   )}
                 </div>
                 {fc.ch_probatoire === "oui" && fc.ch_dateDebut && (
-                  <p style={{ fontSize: "13px", color: "#7a6a52", fontFamily: "'Crimson Pro',serif", margin: "-10px 0 18px", fontStyle: "italic" }}>
+                  <p style={{ fontSize: "13px", color: "#5D6877", fontFamily: "'Crimson Pro',serif", margin: "-10px 0 18px", fontStyle: "italic" }}>
                     Période probatoire : du {formatDateFR(fc.ch_dateDebut)} au {formatDateFR(fc.ch_dateDebut, Number(fc.ch_probatoireJours) - 1)}
                   </p>
                 )}
@@ -1121,6 +1495,16 @@ export default function App() {
           #contrat-print span[style*="text-decoration: underline"] + ul {
             break-before: avoid !important;
             page-break-before: avoid !important;
+          }
+        }
+        @media print {
+          /* Nouveau modèle : chaque annexe commence sur une nouvelle page */
+          #contrat-print .saut-page {
+            break-before: page !important;
+            page-break-before: always !important;
+            border-top: none !important;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
           }
         }
         * { box-sizing: border-box; }
