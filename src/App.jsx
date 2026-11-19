@@ -66,7 +66,7 @@ const FORMES_JURIDIQUES = [
   "Entreprise individuelle",
 ];
 
-const UNITE_LABELS = { "pièce": "Palette", heure: "Heure", forfait: "Forfait", jour: "Forfait journalier" };
+const UNITE_LABELS = { "pièce": "Palette", heure: "Heure", forfait: "Forfait", jour: "Forfait journalier", m3: "m³" };
 
 const LETTRES = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze",
   "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf", "vingt", "vingt et un", "vingt-deux", "vingt-trois", "vingt-quatre"];
@@ -263,7 +263,7 @@ function ClientBox({ qualite = "gérant" }) {
   );
 }
 
-function BtnGenerer({ ok, onClick }) {
+function BtnGenerer({ ok, onClick, enModification }) {
   return (
     <button onClick={() => ok && onClick()} style={{
       width: "100%", padding: "15px",
@@ -274,13 +274,13 @@ function BtnGenerer({ ok, onClick }) {
       boxShadow: ok ? "0 4px 18px rgba(42,132,193,.35)" : "none",
       transition: "all .2s",
     }}>
-      {ok ? "Générer et sauvegarder →" : "Complétez les champs obligatoires *"}
+      {!ok ? "Complétez les champs obligatoires *" : enModification ? "Enregistrer les modifications →" : "Générer et sauvegarder →"}
     </button>
   );
 }
 
 // ── LISTE CONTRATS (générique) ────────────────────────────────
-function ListeContrats({ titre, badge, sousTitre, icon, contrats, onOuvrir, onSupprimer, onNouveau, etiquette }) {
+function ListeContrats({ titre, badge, sousTitre, icon, contrats, onOuvrir, onSupprimer, onNouveau, etiquette, onModifier }) {
   return (
     <div style={{ maxWidth: "700px", margin: "0 auto", padding: "44px 16px 80px" }}>
       <div style={{ textAlign: "center", marginBottom: "36px" }}>
@@ -347,6 +347,13 @@ function ListeContrats({ titre, badge, sousTitre, icon, contrats, onOuvrir, onSu
               borderRadius: "7px", cursor: "pointer", fontSize: "13px",
               fontFamily: "'Playfair Display',serif", fontWeight: 700,
             }}>Ouvrir</button>
+            {onModifier && onModifier(c) && (
+              <button onClick={onModifier(c)} title="Modifier les informations de ce contrat" style={{
+                padding: "7px 12px", background: "transparent", border: "1px solid #2A84C1",
+                color: "#2A84C1", borderRadius: "7px", cursor: "pointer", fontSize: "13px",
+                fontFamily: "'Playfair Display',serif", fontWeight: 700,
+              }}>Modifier</button>
+            )}
             <button onClick={() => onSupprimer(c.id)} style={{
               padding: "7px 10px", background: "transparent", border: "1px solid #DCE3EA",
               color: "#c0392b", borderRadius: "7px", cursor: "pointer", fontSize: "16px",
@@ -407,6 +414,7 @@ function TarifsEditor({ num, tarifs, setTarifs }) {
                     <option value="heure">/ heure</option>
                     <option value="forfait">forfait</option>
                     <option value="jour">forfait / jour</option>
+                    <option value="m3">/ m³</option>
                   </select>
                 </td>
                 <td style={{ padding: "5px 8px", width: "36px", textAlign: "center" }}>
@@ -590,12 +598,16 @@ function ContractViewPalettesV2({ f, tarifs }) {
     : <>Immatriculée sous le n° SIRET {f.prestRcsNum}</>;
   const capital = f.prestCapital ? <> au capital de {f.prestCapital} €</> : null;
   const BLANC = "_____ / _____ / 20_____";
+  // Entreprise individuelle : pas de "société", et pas de "Entrepreneur individuel de Faty MACALOU"
+  const estEI = f.prestForme === "Entreprise individuelle" || /entrepreneur/i.test(f.prestQualite || "");
+  const de = (q) => /^[aeiouyéèêâàîô]/i.test(q || "") ? `d'${q}` : `de ${q}`; // « d'Entrepreneur », « de Président »
+  const qualiteDe = estEI ? f.prestQualite : `${f.prestQualite} de ${f.prestNom}`;
 
   const BG2 = "#EAF3FA", GOLD = "#2A84C1", BORDER = "#C5D3E0";
   const noBreak = { breakInside: "avoid", pageBreakInside: "avoid" };
 
   const c = {
-    wrap: { fontFamily: "'Times New Roman',Times,serif", fontSize: "10pt", color: "#1B2430", lineHeight: 1.4, maxWidth: "800px", margin: "0 auto", background: "#fff", padding: "28px 44px", border: `1px solid ${BORDER}`, borderTop: `4px solid ${GOLD}` },
+    wrap: { fontFamily: "'Times New Roman',Times,serif", fontSize: "9.5pt", color: "#1B2430", lineHeight: 1.38, maxWidth: "800px", margin: "0 auto", background: "#fff", padding: "28px 44px", border: `1px solid ${BORDER}`, borderTop: `4px solid ${GOLD}` },
     h1: { fontSize: "13pt", fontWeight: "bold", textAlign: "center", margin: "0 0 2px", letterSpacing: ".05em" },
     h1b: { fontSize: "11pt", fontWeight: "bold", textAlign: "center", margin: "0 0 2px" },
     sous: { fontStyle: "italic", textAlign: "center", margin: "0 0 4px" },
@@ -633,7 +645,7 @@ function ContractViewPalettesV2({ f, tarifs }) {
   );
 
   return (
-    <div id="contrat-print" style={c.wrap}>
+    <div id="contrat-print" className="cadre-pages" style={c.wrap}>
       <div style={c.h1}>CONTRAT-CADRE DE PRESTATION DE SERVICES</div>
       <div style={c.h1b}>SOUS-TRAITANCE À FAÇON</div>
       <p style={c.sous}>(Tri, réparation et fabrication de palettes en bois sur sites client)</p>
@@ -661,7 +673,7 @@ function ContractViewPalettesV2({ f, tarifs }) {
           Siège social : {f.prestAdresse}, {f.prestCpVille}<br />
           {immat}<br />
           {f.prestEuid && <>EUID : {f.prestEuid}<br /></>}
-          Représentée par {rep}, en sa qualité de {f.prestQualite}<br />
+          Représentée par {rep}, en sa qualité {de(f.prestQualite)}<br />
           <em>(Ci-après désignée « le Prestataire »)</em>
         </p>
       </div>
@@ -714,7 +726,7 @@ function ContractViewPalettesV2({ f, tarifs }) {
       </ul>
       <P><strong>Le Client n'exerce aucun pouvoir de direction, de surveillance ni de sanction sur le personnel du Prestataire.</strong></P>
       <span style={c.sat}>3.3. Référent du Prestataire sur site</span>
-      <P>Le Prestataire désigne un référent parmi ses salariés, présent sur site lors de chaque intervention. Ce référent représente le Prestataire et est le seul interlocuteur opérationnel du Client sur site. Les décisions d'organisation, d'affectation et de discipline restent de la compétence exclusive de {rep}, {f.prestQualite} de {f.prestNom}.</P>
+      <P>Le Prestataire désigne un référent parmi ses salariés, présent sur site lors de chaque intervention. Ce référent représente le Prestataire et est le seul interlocuteur opérationnel du Client sur site. Les décisions d'organisation, d'affectation et de discipline restent de la compétence exclusive de {rep}, {qualiteDe}.</P>
       <P>Le Client s'interdit formellement de donner des directives, ordres ou remontrances directement aux intervenants du Prestataire. Toute remarque qualitative ou demande de correction est adressée exclusivement au référent ou à {rep}.</P>
       <span style={c.sat}>3.4. Plages horaires d'accès aux sites</span>
       <P>Pour des impératifs de sécurité et d'organisation des sites, les interventions se déroulent dans les plages d'ouverture des sites, du lundi au samedi, entre 6h00 et 18h00. Aucune intervention n'est autorisée les dimanches, jours fériés ou périodes de fermeture annuelle. Ces plages horaires constituent des contraintes d'accès au site et non un contrôle du temps de travail du personnel du Prestataire.</P>
@@ -732,7 +744,10 @@ function ContractViewPalettesV2({ f, tarifs }) {
       <span style={c.at}>Article 5 : Obligations du Prestataire — Devoir de vigilance</span>
       <P>Conformément aux articles L. 8222-1 et R. 8222-1 du Code du travail, le Prestataire remet obligatoirement au Client, à la signature du présent contrat puis tous les six (6) mois jusqu'à son terme :</P>
       <ul style={c.ul}>
-        <li>Un extrait Kbis datant de moins de 3 mois{f.prestRcsVille ? ` (délivré par le greffe du Tribunal de Commerce de ${f.prestRcsVille})` : ""} ;</li>
+        {/* Sans RCS (entreprise individuelle non inscrite), pas de Kbis : extrait RNE ou avis de situation SIRENE */}
+        {f.prestRcsVille
+          ? <li>Un extrait Kbis datant de moins de 3 mois (délivré par le greffe du Tribunal de Commerce de {f.prestRcsVille}) ;</li>
+          : <li>Un extrait d'immatriculation au Registre national des entreprises (RNE) ou un avis de situation au répertoire SIRENE datant de moins de 3 mois ;</li>}
         <li>Une attestation de vigilance URSSAF en cours de validité (délivrée via le portail urssaf.fr) ;</li>
         <li>Une attestation de régularité fiscale (délivrée par la DGFiP) ;</li>
         <li>Une attestation d'assurance Responsabilité Civile Professionnelle en cours de validité ;</li>
@@ -773,10 +788,11 @@ function ContractViewPalettesV2({ f, tarifs }) {
       <span style={c.at}>Article 10 : Confidentialité</span>
       <P>Chaque Partie s'engage à garder strictement confidentielles toutes les informations techniques, commerciales et financières de l'autre Partie dont elle aurait eu connaissance dans le cadre de l'exécution du présent contrat. Cette obligation de confidentialité survit à l'expiration ou à la résiliation du contrat pendant une durée de trois (3) ans.</P>
 
+      {/* L'article 11 reste sur la même page que les signatures : elles ne sont jamais seules sur une page */}
+      <div style={noBreak} className="bloc-signatures">
       <span style={c.at}>Article 11 : Droit applicable et juridiction compétente</span>
       <P>Le présent contrat est soumis au droit français. Tout litige relatif à sa validité, son interprétation ou son exécution, non résolu à l'amiable dans un délai de 30 jours, sera porté devant le Tribunal de Commerce de {f.tribunal}.</P>
 
-      <div style={noBreak}>
         <div style={c.titre}>SIGNATURES DES PARTIES</div>
         <hr style={c.divider} />
         <P style={{ fontStyle: "italic", textAlign: "left" }}>Fait à La Merlatière, le <strong>{f.dateSig}</strong>, en deux (2) exemplaires originaux.</P>
@@ -865,7 +881,9 @@ function ContractViewPalettesV2({ f, tarifs }) {
         <P>Je soussigné,</P>
         <P><strong>{rep}</strong></P>
         <P style={{ textAlign: "left" }}>
-          Agissant en qualité de {f.prestQualite} de la société {f.prestNom}<br />
+          {estEI
+            ? <>Agissant en qualité {de(f.prestQualite)}, exerçant sous le nom {f.prestNom}<br /></>
+            : <>Agissant en qualité {de(f.prestQualite)} de la société {f.prestNom}<br /></>}
           {f.prestForme}{capital}<br />
           {immat}<br />
           Siège social : {f.prestAdresse}, {f.prestCpVille}
@@ -879,7 +897,7 @@ function ContractViewPalettesV2({ f, tarifs }) {
         <P>Je certifie sur l'honneur l'exactitude des informations ci-dessus, étant informé que toute fausse déclaration m'exposerait aux sanctions prévues à l'article 441-1 du Code pénal.</P>
         <div style={noBreak}>
           <P style={{ marginTop: "10px", textAlign: "left" }}>Fait à {villePrest || "_______________"}, le {BLANC}</P>
-          <P style={{ textAlign: "left" }}>Signature de {rep}, {f.prestQualite} de {f.prestNom} :</P>
+          <P style={{ textAlign: "left" }}>Signature de {rep}, {qualiteDe} :</P>
           <P style={{ fontStyle: "italic", color: "#5D6877", textAlign: "left" }}>(Précédée de la mention manuscrite « Certifié sincère et véritable »)</P>
           <div style={{ ...c.sigBox, width: "50%", marginTop: "6px" }}>
             <div style={c.sigLine}>Signature</div>
@@ -933,7 +951,7 @@ function ContractViewChauffeur({ f, tarifs }) {
           <tr key={i}>
             <td style={i % 2 === 0 ? c.td : c.tdAlt}>{t.libelle}</td>
             <td style={{ ...(i % 2 === 0 ? c.td : c.tdAlt), textAlign: "right", fontWeight: 600 }}>
-              {t.prix} €/{t.unite === "heure" ? "h" : t.unite === "pièce" ? "pce" : "forfait"}
+              {t.prix} €/{({ heure: "h", "pièce": "pce", jour: "jour", m3: "m³" })[t.unite] || "forfait"}
             </td>
           </tr>
         ))}
@@ -942,7 +960,7 @@ function ContractViewChauffeur({ f, tarifs }) {
   );
 
   return (
-    <div id="contrat-print" style={c.wrap}>
+    <div id="contrat-print" className="cadre-pages" style={c.wrap}>
       <div style={c.h1}>CONTRAT DE PRESTATION DE SERVICE — TRANSPORT</div>
       <hr style={c.divider} />
 
@@ -1077,6 +1095,7 @@ export default function App() {
   const [contratsPalettes, setContratsPalettes] = useState([]);
   const [contratPaletteActif, setContratPaletteActif] = useState(null);
   const setFP = k => v => setF(s => ({ ...s, [k]: v }));
+  const [editionPaletteId, setEditionPaletteId] = useState(null); // id du contrat en cours de modification
 
   // ── STATE CHAUFFEURS ──
   const [vueChauffeurs, setVueChauffeurs] = useState("liste");
@@ -1085,6 +1104,7 @@ export default function App() {
   const [contratsChauffeurs, setContratsChauffeurs] = useState([]);
   const [contratChauffeurActif, setContratChauffeurActif] = useState(null);
   const setFC = k => v => setFc(s => ({ ...s, [k]: v }));
+  const [editionChauffeurId, setEditionChauffeurId] = useState(null);
 
   // ── CHARGEMENT INITIAL ──
   useEffect(() => {
@@ -1109,7 +1129,10 @@ export default function App() {
       version: 2, // nouveau modèle ; les contrats sans "version" sont ceux de l'ancien modèle
       f, tarifs,
     };
-    const updated = [c, ...contratsPalettes];
+    if (editionPaletteId) c.id = editionPaletteId;
+    const updated = editionPaletteId
+      ? contratsPalettes.map(x => x.id === editionPaletteId ? c : x)
+      : [c, ...contratsPalettes];
     setContratsPalettes(updated);
     try { localStorage.setItem(STORAGE_KEY_PALETTES, JSON.stringify(updated)); } catch (e) {}
     return c;
@@ -1124,6 +1147,7 @@ export default function App() {
 
   const genererPalette = () => {
     const saved = sauvegarderPalette();
+    setEditionPaletteId(null);
     setContratPaletteActif(saved);
     setVuePalettes("contrat");
   };
@@ -1141,7 +1165,10 @@ export default function App() {
       nom: fc.ch_nom, dateSig: fc.ch_dateSig, dateDebut: fc.ch_dateDebut,
       f: fc, tarifs: tarifsCh,
     };
-    const updated = [c, ...contratsChauffeurs];
+    if (editionChauffeurId) c.id = editionChauffeurId;
+    const updated = editionChauffeurId
+      ? contratsChauffeurs.map(x => x.id === editionChauffeurId ? c : x)
+      : [c, ...contratsChauffeurs];
     setContratsChauffeurs(updated);
     try { localStorage.setItem(STORAGE_KEY_CHAUFFEURS, JSON.stringify(updated)); } catch (e) {}
     return c;
@@ -1156,9 +1183,28 @@ export default function App() {
 
   const genererChauffeur = () => {
     const saved = sauvegarderChauffeur();
+    setEditionChauffeurId(null);
     setContratChauffeurActif(saved);
     setVueChauffeurs("contrat");
   };
+
+  // ── MODIFIER UN CONTRAT EXISTANT (le formulaire est pré-rempli) ──
+  // Les contrats palettes de l'ancien modèle ne sont pas modifiables : leur formulaire n'existe plus.
+  const modifierPalette = (c) => {
+    setF({ ...EMPTY_PALETTES_V2, ...c.f });
+    setTarifs(c.tarifs);
+    setEditionPaletteId(c.id);
+    setVuePalettes("formulaire");
+  };
+  const modifierChauffeur = (c) => {
+    setFc({ ...EMPTY_CHAUFFEUR, ...c.f });
+    setTarifsCh(c.tarifs);
+    setEditionChauffeurId(c.id);
+    setVueChauffeurs("formulaire");
+  };
+  const contratActif = onglet === "palettes" ? contratPaletteActif : contratChauffeurActif;
+  const peutModifier = onglet === "chauffeurs" || contratPaletteActif?.version === 2;
+  const enModification = onglet === "palettes" ? !!editionPaletteId : !!editionChauffeurId;
 
   // ── VUE ACTIVE ──
   const isContratView = (onglet === "palettes" && vuePalettes === "contrat") ||
@@ -1220,6 +1266,10 @@ export default function App() {
               if (onglet === "palettes") setVuePalettes("liste");
               else setVueChauffeurs("liste");
             }} style={btnBarreStyle}>← Mes contrats</button>
+            {peutModifier && contratActif && (
+              <button onClick={() => onglet === "palettes" ? modifierPalette(contratActif) : modifierChauffeur(contratActif)}
+                style={btnBarreStyle}>✏️ Modifier</button>
+            )}
             <button onClick={() => window.print()} style={{
               padding: "7px 18px", background: "#2A84C1", border: "none", color: "#fff",
               borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontFamily: "system-ui", fontWeight: 600,
@@ -1236,7 +1286,9 @@ export default function App() {
             else setVueChauffeurs("liste");
           }} style={btnBarreStyle}>← Mes contrats</button>
           <span style={{ fontFamily: "'Playfair Display',serif", color: "#7FBDE8", fontSize: "15px", fontWeight: 700 }}>
-            {onglet === "palettes" ? "Nouveau contrat prestataire" : "Nouveau contrat chauffeur"}
+            {enModification
+              ? `Modification du contrat ${onglet === "palettes" ? f.prestNom : fc.ch_nom}`
+              : onglet === "palettes" ? "Nouveau contrat prestataire" : "Nouveau contrat chauffeur"}
           </span>
         </div>
       )}
@@ -1252,7 +1304,8 @@ export default function App() {
               contrats={contratsPalettes}
               onOuvrir={c => { setContratPaletteActif(c); setVuePalettes("contrat"); }}
               onSupprimer={supprimerPalette}
-              onNouveau={() => { setF(EMPTY_PALETTES_V2); setTarifs(TARIFS_DEFAUT_V2); setVuePalettes("formulaire"); }}
+              onNouveau={() => { setEditionPaletteId(null); setF(EMPTY_PALETTES_V2); setTarifs(TARIFS_DEFAUT_V2); setVuePalettes("formulaire"); }}
+              onModifier={c => c.version === 2 ? () => modifierPalette(c) : null}
               etiquette={c => c.version === 2 ? null : "Ancien modèle"}
             />
           )}
@@ -1308,7 +1361,7 @@ export default function App() {
 
               <TarifsEditor num="3" tarifs={tarifs} setTarifs={setTarifs} />
               <ClientBox qualite="Président" />
-              <BtnGenerer ok={okPalettes} onClick={genererPalette} />
+              <BtnGenerer ok={okPalettes} onClick={genererPalette} enModification={!!editionPaletteId} />
             </div>
           )}
 
@@ -1333,7 +1386,8 @@ export default function App() {
               contrats={contratsChauffeurs}
               onOuvrir={c => { setContratChauffeurActif(c); setVueChauffeurs("contrat"); }}
               onSupprimer={supprimerChauffeur}
-              onNouveau={() => { setFc(EMPTY_CHAUFFEUR); setTarifsCh(TARIFS_CHAUFFEUR_DEFAUT); setVueChauffeurs("formulaire"); }}
+              onNouveau={() => { setEditionChauffeurId(null); setFc(EMPTY_CHAUFFEUR); setTarifsCh(TARIFS_CHAUFFEUR_DEFAUT); setVueChauffeurs("formulaire"); }}
+              onModifier={c => () => modifierChauffeur(c)}
             />
           )}
 
@@ -1456,7 +1510,7 @@ export default function App() {
 
               <TarifsEditor num="3" tarifs={tarifsCh} setTarifs={setTarifsCh} />
               <ClientBox />
-              <BtnGenerer ok={okChauffeur} onClick={genererChauffeur} />
+              <BtnGenerer ok={okChauffeur} onClick={genererChauffeur} enModification={!!editionChauffeurId} />
             </div>
           )}
 
@@ -1499,6 +1553,18 @@ export default function App() {
         }
         @media print {
           /* Nouveau modèle : chaque annexe commence sur une nouvelle page */
+          /* Chaque page imprimée reçoit le même cadre : liseré bleu en haut, bordure en bas */
+          #contrat-print.cadre-pages {
+            -webkit-box-decoration-break: clone !important;
+            box-decoration-break: clone !important;
+            border: 1px solid #C5D3E0 !important;
+            border-top: 4px solid #2A84C1 !important;
+            padding: 22px 36px !important;
+          }
+          #contrat-print .bloc-signatures {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
           #contrat-print .saut-page {
             break-before: page !important;
             page-break-before: always !important;
